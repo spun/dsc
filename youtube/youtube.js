@@ -109,18 +109,18 @@ function createVideoUrl(videoObject, videoTitle) {
 
 function setHtml5Player(url) {
     "use strict";
-    if ($('#dsc_video').length === 0) {
-        $('<video>', {
+    if (jQuery('#dsc_video').length === 0) {
+        jQuery('<video>', {
             id: 'dsc_video',
             src: url,
             controls: 'controls',
             autoplay: 'autoplay',
             width: 640,
             height: 390
-        }).appendTo($('#watch-player').parent());
+        }).appendTo(jQuery('#watch-player').parent());
         document.getElementById('watch-player').parentNode.removeChild(document.getElementById("watch-player"));
     } else {
-        $('#dsc_video').attr('src', url);
+        jQuery('#dsc_video').attr('src', url);
     }
 }
 
@@ -185,7 +185,7 @@ function addItemToList(data, videoUrl) {
                 float: 'right'
             },
             click: function () {
-                setHtml5Player($(this).parent().attr('href'));
+                setHtml5Player(jQuery(this).parent().attr('href'));
                 return false;
             }
         }).appendTo(listElement);
@@ -203,7 +203,7 @@ function addItemToList(data, videoUrl) {
                 createDropDownMenuUI();
                 var i, videoTitle, videoUrl;
 
-                videoTitle = $('#eow-title').attr('title');
+                videoTitle = jQuery('#eow-title').attr('title');
 
                 for (i = 0; i < array_videoData.length; i = i + 1) {
                     videoUrl = createVideoUrl(array_videoData[i], videoTitle);
