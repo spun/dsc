@@ -107,6 +107,24 @@ function createVideoUrl(videoObject, videoTitle) {
 }
 
 
+function setHtml5Player(url) {
+    "use strict";
+    if ($('#dsc_video').length === 0) {
+        $('<video>', {
+            id: 'dsc_video',
+            src: url,
+            controls: 'controls',
+            autoplay: 'autoplay',
+            width: 640,
+            height: 390
+        }).appendTo($('#watch-player').parent());
+        document.getElementById('watch-player').parentNode.removeChild(document.getElementById("watch-player"));
+    } else {
+        $('#dsc_video').attr('src', url);
+    }
+}
+
+
 function createButtonUI() {
     "use strict";
     jQuery('<img/>', {
@@ -133,34 +151,45 @@ function createDropDownMenuUI() {
     jQuery('<ul>', {
         'class': 'flag-menu'
     }).appendTo(jQuery('<div>', {
-        'class': 'yt-uix-button-menu yt-uix-button-menu-external',
-        id: "dsc-list-menu",
-        style: {
-            display: 'none',
-            minWidth: '153px',
-            left: '541px',
-            top: '564.5px'
-        }
+        'class': 'yt-uix-button-menu yt-uix-button-menu-external hid',
+        id: "dsc-list-menu"
     }).appendTo('body'));
 }
 
 
 function addItemToList(data, videoUrl) {
     "use strict";
-    var description = "";
+    var description = "", listElement, testFormat;
     if (formats[data.itag]) {
         description = formats[data.itag].description + ' (' + formats[data.itag].format + ')';
     } else {
         description = "Desconocido (" + data.itag + ")";
     }
 
-    jQuery('<span>', {
-        'class': "label",
-        text: description
-    }).appendTo(jQuery('<a>', {
+    listElement  = jQuery('<a>', {
         href: videoUrl,
+        text: description,
         'class': "yt-uix-button-menu-item"
-    }).appendTo('#dsc-list-menu ul'));
+    }).appendTo('#dsc-list-menu ul');
+
+    testFormat = document.createElement('video');
+    if (testFormat.canPlayType(data.type) !== "") {
+        jQuery('<span>', {
+            'class': "label",
+            text: 'H5',
+            title: 'Play in HTML5',
+            css: {
+                position: 'absolute',
+                right: '0.6666em',
+                opacity: '0.6',
+                float: 'right'
+            },
+            click: function () {
+                setHtml5Player($(this).parent().attr('href'));
+                return false;
+            }
+        }).appendTo(listElement);
+    }
 }
 
 
@@ -174,7 +203,7 @@ function addItemToList(data, videoUrl) {
                 createDropDownMenuUI();
                 var i, videoTitle, videoUrl;
 
-                videoTitle = array_videoData[array_videoData.length - 1].title;
+                videoTitle = $('#eow-title').attr('title');
 
                 for (i = 0; i < array_videoData.length; i = i + 1) {
                     videoUrl = createVideoUrl(array_videoData[i], videoTitle);
@@ -184,4 +213,3 @@ function addItemToList(data, videoUrl) {
         }
     });
 }());
-
