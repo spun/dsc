@@ -179,10 +179,10 @@ function addItemToList(data, videoUrl) {
             text: 'H5',
             title: 'Play in HTML5',
             css: {
-                position: 'absolute',
-                right: '0.6666em',
-                opacity: '0.6',
-                float: 'right'
+                'position': 'absolute',
+                'right': '0.6666em',
+                'opacity': '0.6',
+                'float': 'right'
             },
             click: function () {
                 setHtml5Player(jQuery(this).parent().attr('href'));
