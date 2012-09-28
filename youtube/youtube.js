@@ -47,32 +47,21 @@ function getVideoData(videoId, callback) {
     jQuery.ajax({
         url: 'http://www.youtube.com/get_video_info?&video_id=' + videoId,
         success: function (response) {
-            var decode_response,  array_urls, num_urls, video_datas, data, url_data, i, param_string, parameters, j, ab;
+            var decode_response,  array_urls, num_urls, video_datas, data, i, parameters, j, ab;
 
             decode_response = decodeURIComponent(decodeURIComponent(decodeURIComponent(response)));
-            array_urls = decode_response.split(/[=,]url=/);
+            array_urls = decode_response.split(',itag=');
+
             num_urls = array_urls.length;
             video_datas = [];
 
-            for (i = 1; i < num_urls; i = i + 1) {
+            for (i = 0; i < num_urls; i = i + 1) {
                 data = {};
-                url_data = array_urls[i].split(/\?(.+)/);
-                data.url = url_data[0];
-
-                if (url_data[1]) {
-                    param_string = url_data[1];
-                    if (param_string[param_string.length - 1] === ',') {
-                        param_string = param_string.substring(0, param_string.length - 1);
-                    }
-
-                    parameters = param_string.split(/&|;\++/);
-
+                if (array_urls[i]) {
+                    parameters = array_urls[i].split(/\?|&|;\++/);
                     for (j = 0; j < parameters.length; j = j + 1) {
-                        ab = parameters[j].split('=');
-                        // Ignore itag redundancy
-                        if (!(ab.length > 2 && ab[ab.length - 1] !== "")) {
-                            data[ab[0]] = ab[1];
-                        }
+                        ab = parameters[j].split(/\=(.+)/);
+                        data[ab[0]] = ab[1];
                     }
                     video_datas.push(data);
                 }
@@ -95,7 +84,7 @@ function createVideoUrl(videoObject, videoTitle) {
         url += "&" + sparams[param] + "=" + videoObject[sparams[param]];
     }
 
-    url += "&signature=" + videoObject.signature;
+    url += "&signature=" + videoObject.sig;
     url += "&mv=" + videoObject.mv;
     url += "&sver=" + videoObject.sver;
     url += "&mt=" + videoObject.mt;
@@ -127,6 +116,11 @@ function setHtml5Player(url) {
 
 function createButtonUI() {
     "use strict";
+
+    if (jQuery("#dsc-button")) {
+        jQuery("#dsc-button").remove();
+    }
+
     jQuery('<img/>', {
         'class': 'yt-uix-button-arrow',
         src: '//s.ytimg.com/yt/img/pixel-vfl73.gif',
@@ -148,6 +142,11 @@ function createButtonUI() {
 
 function createDropDownMenuUI() {
     "use strict";
+
+    if (jQuery("#dsc-list-menu")) {
+        jQuery("#dsc-list-menu").remove();
+    }
+
     jQuery('<ul>', {
         'class': 'flag-menu'
     }).appendTo(jQuery('<div>', {
