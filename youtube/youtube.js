@@ -96,20 +96,43 @@ function createVideoUrl(videoObject, videoTitle) {
 }
 
 
-function setHtml5Player(url) {
+function getVideoJs(callback) {
+	"use strict";
+    var script, link = document.createElement("link");
+    link.href = "https://vjs.zencdn.net/c/video-js.css";
+	link.rel = "stylesheet";
+	document.head.appendChild(link);
+
+	script = document.createElement("script");
+	script.src = "https://vjs.zencdn.net/c/video.js";
+	script.onload = script.onreadystatechange = function () { callback(); };
+	document.body.appendChild(script);
+}
+
+
+function setHtml5Player(url, type) {
     "use strict";
     if (jQuery('#dsc_video').length === 0) {
-        jQuery('<video>', {
+        var video = jQuery('<video>', {
             id: 'dsc_video',
-            src: url,
             controls: 'controls',
             autoplay: 'autoplay',
-            width: 640,
-            height: 390
+            'class': 'video-js vjs-default-skin'
         }).appendTo(jQuery('#watch-player').parent());
         document.getElementById('watch-player').parentNode.removeChild(document.getElementById("watch-player"));
+        video.attr('width', '640');
+        video.attr('height', '390');
+
+        jQuery('<source>', {
+            src: url,
+            type: type
+        }).appendTo(video);
+
+        getVideoJs(function () {
+			var myPlayer = _V_("dsc_video");
+		});
     } else {
-        jQuery('#dsc_video').attr('src', url);
+        jQuery('#dsc_video source').attr('src', url).attr('type', type);
     }
 }
 
@@ -184,10 +207,10 @@ function addItemToList(data, videoUrl) {
                 'float': 'right'
             },
             click: function () {
-                setHtml5Player(jQuery(this).parent().attr('href'));
+                setHtml5Player(jQuery(this).parent().attr('href'), jQuery(this).data("type"));
                 return false;
             }
-        }).appendTo(listElement);
+        }).data("type", data.type).appendTo(listElement);
     }
 }
 
@@ -202,7 +225,7 @@ function addItemToList(data, videoUrl) {
                 createDropDownMenuUI();
                 var i, videoTitle, videoUrl;
 
-                videoTitle = jQuery('#eow-title').attr('title');
+                videoTitle = escape(jQuery('#eow-title').attr('title'));
 
                 for (i = 0; i < array_videoData.length; i = i + 1) {
                     videoUrl = createVideoUrl(array_videoData[i], videoTitle);
