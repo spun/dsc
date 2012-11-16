@@ -32,9 +32,9 @@ function getVideoId(locationUrl) {
     host = a.hostname;
 
     if (host.substr(host.length - 11) === "youtube.com" && host !== "m.youtube.com") {
-        regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
+        regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]{11,11}).*/;
         match = locationUrl.match(regExp);
-        if (match && match[2].length === 11) {
+        if (match) {
             return match[2];
         }
     }
@@ -129,7 +129,7 @@ function setHtml5Player(url, type) {
         }).appendTo(video);
 
         getVideoJs(function () {
-			var myPlayer = _V_("dsc_video");
+			_V_("dsc_video");
 		});
     } else {
         jQuery('#dsc_video source').attr('src', url).attr('type', type);
