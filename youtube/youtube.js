@@ -1,103 +1,32 @@
-﻿var formats = {
-    5:  {description: "LQ FLV", format: "FLV" },
-    18: {description: "LQ MP4", format: "MP4" },
-    22: {description: "HD 720p MP4", format: "MP4" },
-    34: {description: "LQ FLV", format: "FLV" },
-    35: {description: "HQ 480p FLV", format: "FLV" },
-    37: {description: "Full HD 1080 MP4", format: "MP4" },
-    38: {description: "Original MP4", format: "MP4" },
-    43: {description: "LQ WebM", format: "WebM"},
-    44: {description: "HQ 480p WebM", format: "WebM"},
-    45: {description: "HD 720p WebM", format: "WebM"},
-    46: {description: "Full HD 1080 WebM", format: "WebM"}
+/*global yt: false, escape: false, '_V_': false*/
+
+var formats = {
+    5:   {description: "LQ FLV", format: "FLV" },
+    6:   {description: "LQ FLV", format: "FLV" },
+    13:  {description: "LQ 3GP", format: "3GP" },
+    17:  {description: "LQ 3GP", format: "3GP" },
+    18:  {description: "LQ MP4", format: "MP4" },
+    22:  {description: "HD 720p MP4", format: "MP4" },
+    34:  {description: "LQ FLV", format: "FLV" },
+    35:  {description: "HQ 480p FLV", format: "FLV" },
+    36:  {description: "LQ 3GP", format: "3GP" },
+    37:  {description: "Full HD 1080 MP4", format: "MP4" },
+    38:  {description: "Original MP4", format: "MP4" },
+    43:  {description: "LQ WebM", format: "WebM" },
+    44:  {description: "HQ 480p WebM", format: "WebM" },
+    45:  {description: "HD 720p WebM", format: "WebM" },
+    46:  {description: "Full HD 1080 WebM", format: "WebM" },
+    82:  {description: "LQ MP4 (3D)", format: "MP4" },
+    83:  {description: "LQ MP4 (3D)", format: "MP4" },
+    84:  {description: "HD 720p MP4 (3D)", format: "MP4" },
+    85:  {description: "HQ 520p MP4 (3D)", format: "MP4" },
+    100: {description: "LQ WebM (3D)", format: "WebM" },
+    101: {description: "LQ WebM (3D)", format: "WebM" },
+    102: {description: "HD 720p WebM (3D)", format: "WebM" }
 };
 
-function testJquery(callback) {
-    "use strict";
-    if (typeof jQuery === 'undefined') {
-        var script = document.createElement("script");
-        script.src = "https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js";
-        script.onload = script.onreadystatechange = function () { callback(); };
-        document.body.appendChild(script);
-    } else {
-        callback();
-    }
-}
-
-
-function getVideoId(locationUrl) {
-    "use strict";
-    var regExp, match, host, a = document.createElement('a');
-    a.href = locationUrl;
-    host = a.hostname;
-
-    if (host.substr(host.length - 11) === "youtube.com" && host !== "m.youtube.com") {
-        regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]{11,11}).*/;
-        match = locationUrl.match(regExp);
-        if (match) {
-            return match[2];
-        }
-    }
-    return false;
-}
-
-
-function getVideoData(videoId, callback) {
-    "use strict";
-    jQuery.ajax({
-        url: 'http://www.youtube.com/get_video_info?&video_id=' + videoId,
-        success: function (response) {
-            var decode_response,  array_urls, num_urls, video_datas, data, i, parameters, j, ab;
-
-            decode_response = decodeURIComponent(decodeURIComponent(decodeURIComponent(response)));
-            array_urls = decode_response.split(',itag=');
-
-            num_urls = array_urls.length;
-            video_datas = [];
-
-            for (i = 0; i < num_urls; i = i + 1) {
-                data = {};
-                if (array_urls[i]) {
-                    parameters = array_urls[i].split(/\?|&|;\++/);
-                    for (j = 0; j < parameters.length; j = j + 1) {
-                        ab = parameters[j].split(/\=(.+)/);
-                        data[ab[0]] = ab[1];
-                    }
-                    video_datas.push(data);
-                }
-            }
-            callback(video_datas);
-        }
-    });
-}
-
-
-function createVideoUrl(videoObject, videoTitle) {
-    "use strict";
-    var url, sparams, param;
-
-    url = videoObject.url + "?";
-    url += "sparams=" + videoObject.sparams;
-    sparams = videoObject.sparams.split(',');
-
-    for (param = 0; param < sparams.length; param = param + 1) {
-        url += "&" + sparams[param] + "=" + videoObject[sparams[param]];
-    }
-
-    url += "&signature=" + videoObject.sig;
-    url += "&mv=" + videoObject.mv;
-    url += "&sver=" + videoObject.sver;
-    url += "&mt=" + videoObject.mt;
-    url += "&key=" + videoObject.key;
-
-    url += "&title=" + videoTitle;
-
-    return url;
-}
-
-
 function getVideoJs(callback) {
-	"use strict";
+    "use strict";
     var script, link = document.createElement("link");
     link.href = "https://vjs.zencdn.net/c/video-js.css";
 	link.rel = "stylesheet";
@@ -109,129 +38,143 @@ function getVideoJs(callback) {
 	document.body.appendChild(script);
 }
 
-
 function setHtml5Player(url, type) {
     "use strict";
-    if (jQuery('#dsc_video').length === 0) {
-        var video = jQuery('<video>', {
-            id: 'dsc_video',
-            controls: 'controls',
-            autoplay: 'autoplay',
-            'class': 'video-js vjs-default-skin'
-        }).appendTo(jQuery('#watch-player').parent());
-        document.getElementById('watch-player').parentNode.removeChild(document.getElementById("watch-player"));
-        video.attr('width', '640');
-        video.attr('height', '390');
+    var video, source, dsc_video = document.getElementById('dsc_video');
 
-        jQuery('<source>', {
-            src: url,
-            type: type
-        }).appendTo(video);
+    if (dsc_video === null) {
+        video = document.createElement('video');
+        video.id = 'dsc_video';
+        video.controls = 'controls';
+        video.autoplay = 'autoplay';
+        video.setAttribute('class', 'video-js vjs-default-skin');
+        document.getElementById('watch7-video').appendChild(video);
+        document.getElementById('watch7-player').parentNode.removeChild(document.getElementById("watch7-player"));
+        video.setAttribute('width', '640');
+        video.setAttribute('height', '390');
+
+        source = document.createElement('source');
+        source.src = url;
+        source.type = type;
+        video.appendChild(source);
 
         getVideoJs(function () {
-			_V_("dsc_video");
+			_V_('dsc_video');
 		});
     } else {
-        jQuery('#dsc_video source').attr('src', url).attr('type', type);
+        source = document.getElementById('dsc_video').childNodes[0];
+        source.setAttribute('src', url);
+        source.setAttribute('type', type);
     }
 }
-
 
 function createButtonUI() {
     "use strict";
+    var dsc_button, image, button, span;
 
-    if (jQuery("#dsc-button")) {
-        jQuery("#dsc-button").remove();
+    dsc_button = document.getElementById('dsc-button');
+    if (dsc_button !== null) {
+        dsc_button.parentNode.removeChild(dsc_button);
     }
 
-    jQuery('<img/>', {
-        'class': 'yt-uix-button-arrow',
-        src: '//s.ytimg.com/yt/img/pixel-vfl73.gif',
-        alt: ''
-    }).appendTo(jQuery('<button>', {
-        type: 'button',
-        id: "dsc-button",
-        onclick: ";return false;",
-        'class': 'yt-uix-tooltip-reverse yt-uix-button yt-uix-button-default yt-uix-tooltip',
-        title: 'Descarga el video',
-        html: '<span class="yt-uix-button-content">Descargar </span>',
-        "data-button-menu-id": "dsc-list-menu",
-        role: "button",
-        "aria-pressed": "false",
-        "aria-expanded": "false"
-    }).appendTo('#watch-actions'));
-}
+    image = document.createElement('img');
+    image.setAttribute('class', 'yt-uix-button-arrow');
+    image.src = '//s.ytimg.com/yt/img/pixel-vfl73.gif';
+    image.alt = '';
 
+    button = document.createElement('button');
+    button.type = 'button';
+    button.id = "dsc-button";
+    button.onclick = ";return false;";
+    button.setAttribute('class', 'yt-uix-button yt-uix-button-hh-default');
+    button.title = 'Descarga el video';
+    button.setAttribute('data-button-menu-id', 'dsc-list-menu');
+    button.setAttribute('role', 'button');
+    button.setAttribute('aria-pressed', 'false');
+    button.setAttribute('aria-expanded', 'false');
+    button.style.marginLeft = '10px';
+
+    span = document.createElement('span');
+    span.setAttribute('class', 'yt-uix-button-content');
+    span.textContent = 'Descargar ';
+
+    button.appendChild(span);
+    button.appendChild(image);
+    document.getElementById('watch7-user-header').appendChild(button);
+}
 
 function createDropDownMenuUI() {
     "use strict";
-
-    if (jQuery("#dsc-list-menu")) {
-        jQuery("#dsc-list-menu").remove();
+    var ul, div, dsc_button_menu = document.getElementById('dsc-list-menu');
+    if (dsc_button_menu !== null) {
+        dsc_button_menu.parentNode.removeChild(dsc_button_menu);
     }
 
-    jQuery('<ul>', {
-        'class': 'flag-menu'
-    }).appendTo(jQuery('<div>', {
-        'class': 'yt-uix-button-menu yt-uix-button-menu-external hid',
-        id: "dsc-list-menu"
-    }).appendTo('body'));
-}
+    ul = document.createElement('ul');
+    ul.setAttribute('class', 'flag-menu');
 
+    div = document.createElement('div');
+    div.setAttribute('class', 'yt-uix-button-menu yt-uix-button-menu-external hid');
+    div.id = 'dsc-list-menu';
+
+    div.appendChild(ul);
+    document.body.appendChild(div);
+}
 
 function addItemToList(data, videoUrl) {
     "use strict";
-    var description = "", listElement, testFormat;
+    var description = "", listElement, testFormat, span;
     if (formats[data.itag]) {
         description = formats[data.itag].description + ' (' + formats[data.itag].format + ')';
     } else {
         description = "Desconocido (" + data.itag + ")";
     }
 
-    listElement  = jQuery('<a>', {
-        href: videoUrl,
-        text: description,
-        'class': "yt-uix-button-menu-item"
-    }).appendTo('#dsc-list-menu ul');
+    listElement = document.createElement('a');
+    listElement.href = videoUrl;
+    listElement.textContent = description;
+    listElement.setAttribute('class', 'yt-uix-button-menu-item');
+    document.getElementById('dsc-list-menu').childNodes[0].appendChild(listElement);
 
     testFormat = document.createElement('video');
     if (testFormat.canPlayType(data.type) !== "") {
-        jQuery('<span>', {
-            'class': "label",
-            text: 'H5',
-            title: 'Play in HTML5',
-            css: {
-                'position': 'absolute',
-                'right': '0.6666em',
-                'opacity': '0.6',
-                'float': 'right'
-            },
-            click: function () {
-                setHtml5Player(jQuery(this).parent().attr('href'), jQuery(this).data("type"));
-                return false;
-            }
-        }).data("type", data.type).appendTo(listElement);
+        span = document.createElement('span');
+        span.setAttribute('class', 'label');
+        span.textContent = 'H5';
+        span.title = 'Play in HTML5';
+        span.setAttribute('videoType', data.type);
+        span.style.position = 'absolute';
+        span.style.right = '0.6666em';
+        span.style.opacity = '0.6';
+        span.style.position = 'float';
+        span.onclick = function () {
+            setHtml5Player(this.parentNode.href, this.getAttribute('videoType'));
+            return false;
+        };
+        listElement.appendChild(span);
     }
 }
 
-
 (function () {
     "use strict";
-    testJquery(function () {
-        var video_id = getVideoId(location.href);
-        if (video_id) {
-            getVideoData(video_id, function (array_videoData) {
-                createButtonUI();
-                createDropDownMenuUI();
-                var i, videoTitle, videoUrl;
+    createButtonUI();
+    createDropDownMenuUI();
 
-                videoTitle = escape(jQuery('#eow-title').attr('title'));
-
-                for (i = 0; i < array_videoData.length; i = i + 1) {
-                    videoUrl = createVideoUrl(array_videoData[i], videoTitle);
-                    addItemToList(array_videoData[i], videoUrl);
-                }
-            });
+    var rawData, arg, splitData, i, j, video_title, videoData, videoUrl, array_videoData = [];
+    rawData = yt.playerConfig.args.url_encoded_fmt_stream_map.split(",");
+    for (i = 0; i < rawData.length; i = i + 1) {
+        arg = {};
+        splitData = rawData[i].split("&");
+        for (j = 0; j < splitData.length; j = j + 1) {
+            videoData = splitData[j].split("=");
+            arg[decodeURIComponent(videoData[0])] = decodeURIComponent(videoData.slice(1).join("="));
         }
-    });
+        array_videoData.push(arg);
+    }
+
+    video_title = escape(yt.playerConfig.args.title);
+    for (i = 0; i < array_videoData.length; i = i + 1) {
+        videoUrl = decodeURIComponent(array_videoData[i].url + '&signature=' + array_videoData[i].sig) + '&title=' + video_title;
+        addItemToList(array_videoData[i], videoUrl);
+    }
 }());
