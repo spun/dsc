@@ -29,13 +29,13 @@ function getVideoJs(callback) {
     "use strict";
     var script, link = document.createElement("link");
     link.href = "https://vjs.zencdn.net/c/video-js.css";
-	link.rel = "stylesheet";
-	document.head.appendChild(link);
+    link.rel = "stylesheet";
+    document.head.appendChild(link);
 
-	script = document.createElement("script");
-	script.src = "https://vjs.zencdn.net/c/video.js";
-	script.onload = script.onreadystatechange = function () { callback(); };
-	document.body.appendChild(script);
+    script = document.createElement("script");
+    script.src = "https://vjs.zencdn.net/c/video.js";
+    script.onload = script.onreadystatechange = function () { callback(); };
+    document.body.appendChild(script);
 }
 
 function setHtml5Player(url, type) {
@@ -59,8 +59,8 @@ function setHtml5Player(url, type) {
         video.appendChild(source);
 
         getVideoJs(function () {
-			_V_('dsc_video');
-		});
+            _V_('dsc_video');
+        });
     } else {
         source = document.getElementById('dsc_video').childNodes[0];
         source.setAttribute('src', url);
@@ -123,7 +123,7 @@ function createDropDownMenuUI() {
 
 function addItemToList(data, videoUrl) {
     "use strict";
-    var description = "", listElement, testFormat, span;
+    var description = "", listElement, testFormat, format, span;
     if (formats[data.itag]) {
         description = formats[data.itag].description + ' (' + formats[data.itag].format + ')';
     } else {
@@ -137,12 +137,13 @@ function addItemToList(data, videoUrl) {
     document.getElementById('dsc-list-menu').childNodes[0].appendChild(listElement);
 
     testFormat = document.createElement('video');
-    if (testFormat.canPlayType(data.type) !== "") {
+    format = data.type.split(';')[0];
+    if (testFormat.canPlayType(format) !== "") {
         span = document.createElement('span');
         span.setAttribute('class', 'label');
         span.textContent = 'H5';
         span.title = 'Play in HTML5';
-        span.setAttribute('videoType', data.type);
+        span.setAttribute('videoType', format);
         span.style.position = 'absolute';
         span.style.right = '0.6666em';
         span.style.opacity = '0.6';
