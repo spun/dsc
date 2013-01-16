@@ -86,7 +86,7 @@ function createButtonUI() {
     button.type = 'button';
     button.id = "dsc-button";
     button.onclick = ";return false;";
-    button.setAttribute('class', 'yt-uix-button yt-uix-button-hh-default');
+    button.setAttribute('class', 'yt-uix-button yt-uix-button-default');
     button.title = 'Descarga el video';
     button.setAttribute('data-button-menu-id', 'dsc-list-menu');
     button.setAttribute('role', 'button');
