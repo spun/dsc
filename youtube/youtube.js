@@ -1,4 +1,4 @@
-/*global yt: false, escape: false, '_V_': false*/
+/*global ytplayer: false, escape: false, '_V_': false*/
 
 var formats = {
     5:   {description: "LQ FLV", format: "FLV" },
@@ -162,7 +162,7 @@ function addItemToList(data, videoUrl) {
     createDropDownMenuUI();
 
     var rawData, arg, splitData, i, j, video_title, videoData, videoUrl, array_videoData = [];
-    rawData = yt.playerConfig.args.url_encoded_fmt_stream_map.split(",");
+    rawData = ytplayer.config.args.url_encoded_fmt_stream_map.split(",");
     for (i = 0; i < rawData.length; i = i + 1) {
         arg = {};
         splitData = rawData[i].split("&");
@@ -173,7 +173,7 @@ function addItemToList(data, videoUrl) {
         array_videoData.push(arg);
     }
 
-    video_title = escape(yt.playerConfig.args.title);
+    video_title = escape(ytplayer.config.args.title);
     for (i = 0; i < array_videoData.length; i = i + 1) {
         videoUrl = decodeURIComponent(array_videoData[i].url + '&signature=' + array_videoData[i].sig) + '&title=' + video_title;
         addItemToList(array_videoData[i], videoUrl);
