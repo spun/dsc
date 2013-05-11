@@ -48,8 +48,8 @@ function setHtml5Player(url, type) {
         video.controls = 'controls';
         video.autoplay = 'autoplay';
         video.setAttribute('class', 'video-js vjs-default-skin');
-        document.getElementById('watch7-video').appendChild(video);
-        document.getElementById('watch7-player').parentNode.removeChild(document.getElementById("watch7-player"));
+        document.getElementById('player').appendChild(video);
+        document.getElementById('player-api').parentNode.removeChild(document.getElementById("player-api"));
         video.setAttribute('width', '640');
         video.setAttribute('height', '390');
 
