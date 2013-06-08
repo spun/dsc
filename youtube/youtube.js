@@ -70,7 +70,7 @@ function setHtml5Player(url, type) {
 
 function createButtonUI() {
     "use strict";
-    var dsc_button, image, button, span;
+    var dsc_button, image, button, span, btn_reference;
 
     dsc_button = document.getElementById('dsc-button');
     if (dsc_button !== null) {
@@ -100,7 +100,9 @@ function createButtonUI() {
 
     button.appendChild(span);
     button.appendChild(image);
-    document.getElementById('watch7-user-header').appendChild(button);
+
+    btn_reference = document.getElementsByClassName('yt-uix-overlay')[0];
+    btn_reference.parentNode.insertBefore(button, btn_reference);
 }
 
 function createDropDownMenuUI() {
@@ -112,6 +114,7 @@ function createDropDownMenuUI() {
 
     ul = document.createElement('ul');
     ul.setAttribute('class', 'flag-menu');
+    //ul.style.minWidth = '215px';
 
     div = document.createElement('div');
     div.setAttribute('class', 'yt-uix-button-menu yt-uix-button-menu-external hid');
@@ -153,6 +156,7 @@ function addItemToList(data, videoUrl) {
             return false;
         };
         listElement.appendChild(span);
+        listElement.style.paddingRight = '30px';
     }
 }
 
