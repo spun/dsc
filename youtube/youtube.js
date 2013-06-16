@@ -114,7 +114,6 @@ function createDropDownMenuUI() {
 
     ul = document.createElement('ul');
     ul.setAttribute('class', 'flag-menu');
-    //ul.style.minWidth = '215px';
 
     div = document.createElement('div');
     div.setAttribute('class', 'yt-uix-button-menu yt-uix-button-menu-external hid');
