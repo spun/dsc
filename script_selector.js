@@ -2,6 +2,7 @@
     'use strict';
     var url = '',
         host = location.hostname,
+        domain = document.domain,
         sites = {},
         scriptElement;
 
@@ -11,6 +12,12 @@
         },
         goear: {
             url: 'https://raw.github.com/spun/dsc/master/goear/goear.js'
+        },
+        twitch: {
+            url: 'https://raw.github.com/spun/dsc/master/twitch/twitch.js'
+        },
+        detector: {
+            url: 'https://c9.io/spun/dsc/workspace/detector.js'
         }
     };
 
@@ -18,6 +25,10 @@
         url = sites.youtube.url;
     } else if (host === 'www.goear.com' || host === 'goear.com') {
         url = sites.goear.url;
+    } else if (domain === 'twitch.tv') {
+        url = sites.twitch.url;
+    } else {
+        url = sites.detector.url;
     }
 
     if (url !== '') {
