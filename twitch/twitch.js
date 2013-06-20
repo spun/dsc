@@ -92,9 +92,13 @@ function getVideoUrls(videoId, callback) {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
             listaVideos = JSON.parse(xmlhttp.responseText).query.results.archives.archive;
 
-            numVideos = listaVideos.length;
-            for (i = 0; i < numVideos; i = i + 1) {
-                listUrls.push(listaVideos[i].video_file_url);
+            if (listaVideos[0]) {
+                numVideos = listaVideos.length;
+                for (i = 0; i < numVideos; i = i + 1) {
+                    listUrls.push(listaVideos[i].video_file_url);
+                }
+            } else {
+                listUrls.push(listaVideos.video_file_url);
             }
             callback(listUrls);
         }
