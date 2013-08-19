@@ -22,8 +22,9 @@ function createButtonUI() {
         dsc_button.parentNode.removeChild(dsc_button);
     }
 
-    button = document.createElement('p');
+    button = document.createElement('a');
     button.id = "dsc-button";
+    button.href = "#";
     button.setAttribute('class', 'dropdown_static action');
 
     span = document.createElement('span');
@@ -32,13 +33,16 @@ function createButtonUI() {
     button.appendChild(span);
     document.getElementById('channel_actions').appendChild(button);
 
-    button.onclick = function() {
+    button.onclick = function () {
         dsc_button_menu = document.getElementById('dsc-list-menu');
+
         if (dsc_button_menu.style.display === 'none') {
             dsc_button_menu.style.display = 'block';
         } else {
             dsc_button_menu.style.display = 'none';
         }
+        dsc_button_menu.style.top = button.offsetTop - (dsc_button_menu.offsetHeight + 5) + "px";
+        dsc_button_menu.style.left = button.offsetLeft + "px";
     };
 }
 
@@ -88,7 +92,7 @@ function getVideoUrls(videoId, callback) {
         xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
     }
 
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
             listaVideos = JSON.parse(xmlhttp.responseText).query.results.archives.archive;
 
@@ -107,12 +111,12 @@ function getVideoUrls(videoId, callback) {
     xmlhttp.send();
 }
 
-(function() {
+(function () {
     'use strict';
     var i, numVideos, id = getVideoId();
     if (id) {
         createDropDownMenuUI();
-        getVideoUrls(id, function(lista) {
+        getVideoUrls(id, function (lista) {
             numVideos = lista.length;
             for (i = 0; i < numVideos; i = i + 1) {
                 addItemToList(parseInt(i, 10) + 1, lista[i]);
