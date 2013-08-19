@@ -1,4 +1,4 @@
-/*global ytplayer: false, escape: false, '_V_': false*/
+/*global ytplayer: false, escape: false, videojs: false*/
 /*jslint browser: true */
 
 var formats = {
@@ -27,27 +27,25 @@ var formats = {
 };
 
 function getVideoJs(callback) {
-    "use strict";
+    'use strict';
     var script, link = document.createElement("link");
-    link.href = "https://vjs.zencdn.net/c/video-js.css";
+    link.href = "https://vjs.zencdn.net/4.1/video-js.css";
     link.rel = "stylesheet";
     document.head.appendChild(link);
 
     script = document.createElement("script");
-    script.src = "https://vjs.zencdn.net/c/video.js";
+    script.src = "https://vjs.zencdn.net/4.1/video.js";
     script.onload = script.onreadystatechange = function () { callback(); };
     document.body.appendChild(script);
 }
 
 function setHtml5Player(url, type) {
-    "use strict";
+    'use strict';
     var video, source, dsc_video = document.getElementById('dsc_video');
 
     if (dsc_video === null) {
         video = document.createElement('video');
         video.id = 'dsc_video';
-        video.controls = 'controls';
-        video.autoplay = 'autoplay';
         video.setAttribute('class', 'video-js vjs-default-skin');
         document.getElementById('player-legacy').appendChild(video);
         document.getElementById('player-api-legacy').parentNode.removeChild(document.getElementById("player-api-legacy"));
@@ -60,7 +58,11 @@ function setHtml5Player(url, type) {
         video.appendChild(source);
 
         getVideoJs(function () {
-            _V_('dsc_video');
+            videojs('dsc_video', {
+                "controls": true,
+                "autoplay": true,
+                "preload": "auto"
+            });
         });
     } else {
         source = document.getElementById('dsc_video').childNodes[0];
@@ -70,7 +72,7 @@ function setHtml5Player(url, type) {
 }
 
 function createButtonUI() {
-    "use strict";
+    'use strict';
     var dsc_button, image, button, span, btn_reference;
 
     dsc_button = document.getElementById('dsc-button');
@@ -107,7 +109,7 @@ function createButtonUI() {
 }
 
 function createDropDownMenuUI() {
-    "use strict";
+    'use strict';
     var ul, div, dsc_button_menu = document.getElementById('dsc-list-menu');
     if (dsc_button_menu !== null) {
         dsc_button_menu.parentNode.removeChild(dsc_button_menu);
@@ -125,7 +127,7 @@ function createDropDownMenuUI() {
 }
 
 function addItemToList(data, videoUrl) {
-    "use strict";
+    'use strict';
     var description = "", listElement, testFormat, format, span;
     if (formats[data.itag]) {
         description = formats[data.itag].description + ' (' + formats[data.itag].format + ')';
@@ -161,7 +163,7 @@ function addItemToList(data, videoUrl) {
 }
 
 (function () {
-    "use strict";
+    'use strict';
     createButtonUI();
     createDropDownMenuUI();
 
