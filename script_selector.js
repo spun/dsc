@@ -1,3 +1,5 @@
+/*jslint browser: true */
+
 (function () {
     'use strict';
     var url = '',
@@ -16,6 +18,9 @@
         twitch: {
             url: 'https://raw.github.com/spun/dsc/master/twitch/twitch.js'
         },
+        livestream: {
+            url: 'https://raw.github.com/spun/dsc/master/livestream/livestream.js'
+        },
         detector: {
             url: 'https://c9.io/spun/dsc/workspace/detector.js'
         }
@@ -27,6 +32,8 @@
         url = sites.goear.url;
     } else if (domain === 'twitch.tv') {
         url = sites.twitch.url;
+    } else if (domain === 'new.livestream.com') {
+        url = sites.livestream.url;
     } else {
         url = sites.detector.url;
     }
