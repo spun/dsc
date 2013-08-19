@@ -49,8 +49,8 @@ function setHtml5Player(url, type) {
         video.controls = 'controls';
         video.autoplay = 'autoplay';
         video.setAttribute('class', 'video-js vjs-default-skin');
-        document.getElementById('player').appendChild(video);
-        document.getElementById('player-api').parentNode.removeChild(document.getElementById("player-api"));
+        document.getElementById('player-legacy').appendChild(video);
+        document.getElementById('player-api-legacy').parentNode.removeChild(document.getElementById("player-api-legacy"));
         video.setAttribute('width', '640');
         video.setAttribute('height', '390');
 
@@ -177,7 +177,7 @@ function addItemToList(data, videoUrl) {
         array_videoData.push(arg);
     }
 
-    video_title = escape(ytplayer.config.args.title.replace('"', ''));
+    video_title = escape(ytplayer.config.args.title.replace(/"/g, ''));
     for (i = 0; i < array_videoData.length; i = i + 1) {
         videoUrl = decodeURIComponent(array_videoData[i].url + '&signature=' + array_videoData[i].sig) + '&title=' + video_title;
         addItemToList(array_videoData[i], videoUrl);
