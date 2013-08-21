@@ -41,14 +41,18 @@ function getVideoJs(callback) {
 
 function setHtml5Player(url, type) {
     'use strict';
-    var video, source, dsc_video = document.getElementById('dsc_video');
+    var video, videoZone, source, dsc_video = document.getElementById('dsc_video');
 
     if (dsc_video === null) {
         video = document.createElement('video');
         video.id = 'dsc_video';
         video.setAttribute('class', 'video-js vjs-default-skin');
-        document.getElementById('player-legacy').appendChild(video);
-        document.getElementById('player-api-legacy').parentNode.removeChild(document.getElementById("player-api-legacy"));
+
+        videoZone = document.getElementById('player-api');
+        while (videoZone.firstChild) {
+            videoZone.removeChild(videoZone.firstChild);
+        }
+        document.getElementById('player-api').appendChild(video);
         video.setAttribute('width', '640');
         video.setAttribute('height', '390');
 
