@@ -1,31 +1,10 @@
 /*global videojs: false, ActiveXObject: false */
 /*jslint browser: true, regexp: true */
 
-function getApiUrl() {
+function getFeedData() {
     'use strict';
 
-    return window.lsconfig.event_design_eventId;
-}
-
-function getVideoUrls(apiUrl, callback) {
-    'use strict';
-    var listaVideos, xmlhttp,
-        yql = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from json where url="' + apiUrl + '"') + '&format=json';
-
-    if (window.XMLHttpRequest) {
-        xmlhttp = new XMLHttpRequest();
-    } else {
-        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            listaVideos = JSON.parse(xmlhttp.responseText).query.results.json.feed.data;
-            callback(listaVideos);
-        }
-    };
-    xmlhttp.open("GET", yql, true);
-    xmlhttp.send();
+    return window.config.event.feed.data;
 }
 
 function getVideoJs(callback) {
@@ -79,8 +58,10 @@ function setHtml5Player(url, videoZone, postId) {
 
 function addButton(buttonZone, text, link, videoZone, postId) {
     'use strict';
-    var listElement = document.createElement('li'), elementLink = document.createElement('a');
+    var listElement = document.createElement('li'),
+        elementLink = document.createElement('a');
 
+    listElement.setAttribute('class', 'share_embed_option');
     elementLink.setAttribute('class', 'feed_embed');
     elementLink.href = link;
     elementLink.textContent = text;
@@ -97,40 +78,39 @@ function addButton(buttonZone, text, link, videoZone, postId) {
     };
 }
 
-function setVideoPost(post, videoData) {
+function setVideoPost(post, videoData, position) {
     'use strict';
     var buttonZone, replaceZone;
 
     buttonZone = post.getElementsByClassName('feed_share_embed')[0];
     replaceZone = post.getElementsByClassName('iframe-wrapper')[0];
 
-    addButton(buttonZone, 'Video HD', videoData.progressive_url_hd, replaceZone, post.getElementsByClassName('post_content')[0].getAttribute('data-post_id'));
-    addButton(buttonZone, 'Video SD', videoData.progressive_url, replaceZone, post.getElementsByClassName('post_content')[0].getAttribute('data-post_id'));
+    addButton(buttonZone, 'Video HD', videoData.progressive_url_hd, replaceZone, position);
+    addButton(buttonZone, 'Video SD', videoData.progressive_url, replaceZone, position);
 }
 
 (function () {
     'use strict';
-    var apiUrl = getApiUrl(), numPostsApi, posts, i, listadoApi = [];
+    var  numPostsApi, posts, i, listadoApi = [], feedData;
 
-    if (apiUrl) {
-        getVideoUrls(apiUrl, function (resultApi) {
+    feedData = getFeedData();
+    if (feedData) {
 
-            if (resultApi[0]) {
-                listadoApi = resultApi;
-            } else {
-                listadoApi.push(resultApi);
-            }
+        if (feedData[0]) {
+            listadoApi = feedData;
+        } else {
+            listadoApi.push(feedData);
+        }
 
-            numPostsApi = listadoApi.length;
-            posts = document.getElementsByClassName('post');
+        numPostsApi = listadoApi.length;
+        posts = document.getElementsByClassName('post');
 
-            if (numPostsApi === posts.length) {
-                for (i = 0; i < numPostsApi; i = i + 1) {
-                    if (listadoApi[i].type === 'video') {
-                        setVideoPost(posts[i], listadoApi[i].data);
-                    }
+        if (numPostsApi === posts.length) {
+            for (i = 0; i < numPostsApi; i = i + 1) {
+                if (listadoApi[i].type === 'video') {
+                    setVideoPost(posts[i], listadoApi[i].data, i);
                 }
             }
-        });
+        }
     }
 }());
