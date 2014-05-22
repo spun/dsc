@@ -2,39 +2,54 @@
 /*jslint browser: true */
 
 var formats = {
-    5:   {description: "LQ FLV", format: "FLV" },
-    6:   {description: "LQ FLV", format: "FLV" },
-    13:  {description: "LQ 3GP", format: "3GP" },
-    17:  {description: "LQ 3GP", format: "3GP" },
-    18:  {description: "LQ MP4", format: "MP4" },
-    22:  {description: "HD 720p MP4", format: "MP4" },
-    34:  {description: "LQ FLV", format: "FLV" },
-    35:  {description: "HQ 480p FLV", format: "FLV" },
-    36:  {description: "LQ 3GP", format: "3GP" },
-    37:  {description: "Full HD 1080 MP4", format: "MP4" },
-    38:  {description: "Original MP4", format: "MP4" },
-    43:  {description: "LQ WebM", format: "WebM" },
-    44:  {description: "HQ 480p WebM", format: "WebM" },
-    45:  {description: "HD 720p WebM", format: "WebM" },
-    46:  {description: "Full HD 1080 WebM", format: "WebM" },
-    82:  {description: "LQ MP4 (3D)", format: "MP4" },
-    83:  {description: "LQ MP4 (3D)", format: "MP4" },
-    84:  {description: "HD 720p MP4 (3D)", format: "MP4" },
-    85:  {description: "HQ 520p MP4 (3D)", format: "MP4" },
-    100: {description: "LQ WebM (3D)", format: "WebM" },
-    101: {description: "LQ WebM (3D)", format: "WebM" },
-    102: {description: "HD 720p WebM (3D)", format: "WebM" }
+    5:   {description: "LQ FLV", format: "FLV", extension: "flv" },
+    6:   {description: "LQ FLV", format: "FLV", extension: "flv" },
+    13:  {description: "LQ 3GP", format: "3GP", extension: "3gp" },
+    17:  {description: "LQ 3GP", format: "3GP", extension: "3gp" },
+    18:  {description: "LQ MP4", format: "MP4", extension: "mp4" },
+    22:  {description: "HD 720p MP4", format: "MP4", extension: "mp4" },
+    34:  {description: "LQ FLV", format: "FLV", extension: "flv" },
+    35:  {description: "HQ 480p FLV", format: "FLV", extension: "flv" },
+    36:  {description: "LQ 3GP", format: "3GP", extension: "3gp" },
+    37:  {description: "Full HD 1080 MP4", format: "MP4", extension: "mp4" },
+    38:  {description: "Original MP4", format: "MP4", extension: "mp4" },
+    43:  {description: "LQ WebM", format: "WebM", extension: "webm" },
+    44:  {description: "HQ 480p WebM", format: "WebM", extension: "webm" },
+    45:  {description: "HD 720p WebM", format: "WebM", extension: "webm" },
+    46:  {description: "Full HD 1080 WebM", format: "WebM", extension: "webm" },
+    82:  {description: "LQ MP4 (3D)", format: "MP4", extension: "mp4" },
+    83:  {description: "LQ MP4 (3D)", format: "MP4", extension: "mp4" },
+    84:  {description: "HD 720p MP4 (3D)", format: "MP4", extension: "mp4" },
+    85:  {description: "HQ 520p MP4 (3D)", format: "MP4", extension: "mp4" },
+    100: {description: "LQ WebM (3D)", format: "WebM", extension: "webm" },
+    101: {description: "LQ WebM (3D)", format: "WebM", extension: "webm" },
+    102: {description: "HD 720p WebM (3D)", format: "WebM", extension: "webm" },
+    133: {description: "*LQ 240p MP4", format: "MP4", extension: "mp4" },
+    134: {description: "*MQ 360p MP4", format: "MP4", extension: "mp4" },
+    135: {description: "*HQ 480p MP4", format: "MP4", extension: "mp4" },
+    136: {description: "*HD 720p MP4", format: "MP4", extension: "mp4" },
+    137: {description: "*Full HD 1080 MP4", format: "MP4", extension: "mp4" },
+    138: {description: "*ULTRA HD 4K MP4", format: "MP4", extension: "mp4" },
+    140: {description: "*AUDIO MP4", format: "MP4", extension: "m4a" },
+    160: {description: "*LQ 144p WebM", format: "WebM", extension: "webm" },
+    171: {description: "*AUDIO OGG", format: "OGG", extension: "ogg" },
+    242: {description: "*LQ 240p WebM", format: "WebM", extension: "webm" },
+    243: {description: "*MQ 360p WebM", format: "WebM", extension: "webm" },
+    244: {description: "*HQ 480p WebM", format: "WebM", extension: "webm" },
+    247: {description: "*HD 720p WebM", format: "WebM", extension: "webm" },
+    248: {description: "*Full HD 1080 WebM", format: "WebM", extension: "webm" },
+    264: {description: "*HD 1440p MP4", format: "MP4", extension: "mp4" }
 };
 
 function getVideoJs(callback) {
     'use strict';
     var script, link = document.createElement("link");
-    link.href = "https://vjs.zencdn.net/4.1/video-js.css";
+    link.href = "https://vjs.zencdn.net/4.6.1/video-js.css";
     link.rel = "stylesheet";
     document.head.appendChild(link);
 
     script = document.createElement("script");
-    script.src = "https://vjs.zencdn.net/4.1/video.js";
+    script.src = "https://vjs.zencdn.net/4.6.1/video.js";
     script.onload = script.onreadystatechange = function () { callback(); };
     document.body.appendChild(script);
 }
@@ -68,6 +83,17 @@ function setHtml5Player(url, type) {
                 "preload": "auto"
             });
         });
+
+        video.onerror = function () {
+            var resumeFrom, stopTime = this.currentTime;
+            resumeFrom = function () {
+                this.currentTime = stopTime;
+                this.removeEventListener('canplay', resumeFrom);
+            };
+            this.addEventListener('canplay', resumeFrom);
+            this.play();
+        };
+
     } else {
         source = document.getElementById('dsc_video').childNodes[0];
         source.setAttribute('src', url);
@@ -130,7 +156,7 @@ function createDropDownMenuUI() {
     document.body.appendChild(div);
 }
 
-function addItemToList(data, videoUrl) {
+function addItemToList(data, videoUrl, downloadName) {
     'use strict';
     var description = "", listElement, testFormat, format, span;
     if (formats[data.itag]) {
@@ -143,6 +169,9 @@ function addItemToList(data, videoUrl) {
     listElement.href = videoUrl;
     listElement.textContent = description;
     listElement.setAttribute('class', 'yt-uix-button-menu-item');
+    if (downloadName) {
+        listElement.setAttribute('download', downloadName + "." + formats[data.itag].extension);
+    }
     document.getElementById('dsc-list-menu').childNodes[0].appendChild(listElement);
 
     testFormat = document.createElement('video');
@@ -166,12 +195,21 @@ function addItemToList(data, videoUrl) {
     }
 }
 
+function addSeparator() {
+    'use strict';
+    var listElement;
+    listElement = document.createElement('li');
+    listElement.setAttribute('class', 'yt-uix-button-menu-new-section-separator');
+    document.getElementById('dsc-list-menu').childNodes[0].appendChild(listElement);
+}
+
+
 (function () {
     'use strict';
     createButtonUI();
     createDropDownMenuUI();
 
-    var rawData, arg, splitData, i, j, video_title, videoData, videoUrl, array_videoData = [];
+    var rawData, rawNewData, arg, splitData, i, j, video_title, videoData, videoUrl, array_videoData = [];
     rawData = ytplayer.config.args.url_encoded_fmt_stream_map.split(",");
     for (i = 0; i < rawData.length; i = i + 1) {
         arg = {};
@@ -184,8 +222,22 @@ function addItemToList(data, videoUrl) {
     }
 
     video_title = escape(ytplayer.config.args.title.replace(/"/g, ''));
+
     for (i = 0; i < array_videoData.length; i = i + 1) {
         videoUrl = decodeURIComponent(array_videoData[i].url + '&signature=' + array_videoData[i].sig) + '&title=' + video_title;
         addItemToList(array_videoData[i], videoUrl);
     }
+
+    addSeparator();
+    rawNewData = ytplayer.config.args.adaptive_fmts.split(",");
+    for (i = 0; i < rawNewData.length; i = i + 1) {
+        arg = {};
+        splitData = rawNewData[i].split("&");
+        for (j = 0; j < splitData.length; j = j + 1) {
+            videoData = splitData[j].split("=");
+            arg[decodeURIComponent(videoData[0])] = decodeURIComponent(videoData.slice(1).join("="));
+        }
+        addItemToList(arg, arg.url, decodeURIComponent(video_title));
+    }
+
 }());
