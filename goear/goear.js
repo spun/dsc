@@ -68,13 +68,11 @@ function createButtonUI(audioData) {
     dwnlink.setAttribute('href', audioData.href);
     dwnlink.setAttribute('title', 'Haz click con el segundo boton y elige guardar como...');
     dwnlink.style.backgroundPosition = '10px -342px';
-    dwnlink.setAttribute('class', 'radius_3 dragout');
+    dwnlink.setAttribute('class', 'btn dragout');
+    dwnlink.setAttribute('download', audioData.title);
     dwnlink.setAttribute('draggable', 'true');
     dwnlink.setAttribute('data-downloadurl', 'audio/mpeg:' + audioData.title + '.mp3:' + audioData.href);
 
-    dwnlink.onclick = function (e) {
-        e.preventDefault();
-    };
     dwnlink.ondblclick = function (e) {
         setHtml5Player(this.href);
         e.preventDefault();
@@ -82,7 +80,7 @@ function createButtonUI(audioData) {
 
     dwnbox.appendChild(dwnlink);
 
-    position = document.getElementById('actions');
+    position = document.getElementsByClassName('actions')[0];
     position.insertBefore(dwnbox, position.firstChild);
 
     dwnlink.addEventListener('dragstart', function (e) {
