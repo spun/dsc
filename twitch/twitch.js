@@ -65,6 +65,19 @@ function createDropDownMenuUI() {
     document.getElementsByClassName('tse-content')[1].appendChild(div);
 }
 
+
+function addSectionToList(text) {
+    'use strict';
+    var listElement;
+
+    listElement = document.createElement('label');
+    listElement.style.textAlign = "center";
+    listElement.textContent = text;
+
+    document.getElementById('dsc-list-menu').appendChild(listElement);
+}
+
+
 function addItemToList(numElement, videoUrl) {
     'use strict';
     var listElement, elementLink;
@@ -75,7 +88,8 @@ function addItemToList(numElement, videoUrl) {
     elementLink = document.createElement('a');
     elementLink.setAttribute('class', 'dropmenu_action');
     elementLink.href = videoUrl;
-    elementLink.textContent = 'Parte ' + numElement;
+    elementLink.textContent = 'Part ' + numElement;
+    elementLink.download = 'Part ' + numElement;
 
     listElement.appendChild(elementLink);
 
@@ -84,7 +98,7 @@ function addItemToList(numElement, videoUrl) {
 
 function getVideoUrls(videoId, callback) {
     'use strict';
-    var i, numVideos, listaVideos, xmlhttp, listUrls = [], yql = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from xml where url="http://api.justin.tv/api/broadcast/by_archive/' + videoId + '.xml"') + '&format=json';
+    var listaVideos, xmlhttp, yql = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from json where url="https://api.twitch.tv/api/videos/a' + videoId + '.xml"') + '&format=json';
 
     if (window.XMLHttpRequest) {
         xmlhttp = new XMLHttpRequest();
@@ -94,17 +108,8 @@ function getVideoUrls(videoId, callback) {
 
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            listaVideos = JSON.parse(xmlhttp.responseText).query.results.archives.archive;
-
-            if (listaVideos[0]) {
-                numVideos = listaVideos.length;
-                for (i = 0; i < numVideos; i = i + 1) {
-                    listUrls.push(listaVideos[i].video_file_url);
-                }
-            } else {
-                listUrls.push(listaVideos.video_file_url);
-            }
-            callback(listUrls);
+            listaVideos = JSON.parse(xmlhttp.responseText).query.results.json.chunks;
+            callback(listaVideos);
         }
     };
     xmlhttp.open("GET", yql, true);
@@ -113,13 +118,30 @@ function getVideoUrls(videoId, callback) {
 
 (function () {
     'use strict';
-    var i, numVideos, id = getVideoId();
+    var i, videos, numVideos, id = getVideoId();
     if (id) {
         createDropDownMenuUI();
-        getVideoUrls(id, function (lista) {
-            numVideos = lista.length;
-            for (i = 0; i < numVideos; i = i + 1) {
-                addItemToList(parseInt(i, 10) + 1, lista[i]);
+        getVideoUrls(id, function (list) {
+
+            var formatVideos;
+            for (formatVideos in list) {
+                if (list.hasOwnProperty(formatVideos)) {
+
+                    addSectionToList(formatVideos);   // Separator
+
+                    videos =  list[formatVideos];
+                    // Multiple videos
+                    if (videos[0]) {
+
+                        numVideos = videos.length;
+                        for (i = 0; i < numVideos; i = i + 1) {
+                            addItemToList(i + 1, videos[i].url);
+                        }
+
+                    } else {    // One video
+                        addItemToList(1, videos.url);
+                    }
+                }
             }
             createButtonUI();
         });
