@@ -1,5 +1,5 @@
-/*global ActiveXObject: false */
-/*jslint browser: true, regexp: true */
+/*global ActiveXObject */
+/*jslint browser: true, for: true */
 
 function setHtml5Player(url) {
     'use strict';
@@ -38,7 +38,7 @@ function getAudioData(audioId, callback) {
     'use strict';
     var xmlhttp, yql = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent("select * from xml where url='http://www.goear.com/playersong/" + audioId + "' and itemPath='playlists.playlist.track'") + '&format=json';
 
-    if (window.XMLHttpRequest) {
+    if (XMLHttpRequest) {
         xmlhttp = new XMLHttpRequest();
     } else {
         xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
@@ -67,20 +67,25 @@ function createButtonUI(audioData) {
     dwnlink.textContent = 'Descargar';
     dwnlink.setAttribute('href', audioData.href);
     dwnlink.setAttribute('title', 'Haz click con el segundo boton y elige guardar como...');
-    dwnlink.style.backgroundPosition = '10px -342px';
-    dwnlink.setAttribute('class', 'btn dragout');
+    dwnlink.setAttribute('class', 'dragout');
     dwnlink.setAttribute('download', audioData.title);
     dwnlink.setAttribute('draggable', 'true');
     dwnlink.setAttribute('data-downloadurl', 'audio/mpeg:' + audioData.title + '.mp3:' + audioData.href);
 
     dwnlink.ondblclick = function (e) {
-        setHtml5Player(this.href);
+        setHtml5Player(dwnlink.href);
         e.preventDefault();
+        e.stopPropagation();
     };
 
     dwnbox.appendChild(dwnlink);
 
     position = document.getElementsByClassName('actions')[0];
+    if (!position && document.getElementById('maincontent') !== null) {
+        var iframe = document.getElementById('maincontent');
+        var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+        position = innerDoc.getElementsByClassName('actions')[0];
+    }
     position.insertBefore(dwnbox, position.firstChild);
 
     dwnlink.addEventListener('dragstart', function (e) {
