@@ -80,7 +80,7 @@ function createButtonUI(audioData) {
 
     dwnbox.appendChild(dwnlink);
 
-    position = document.getElementsByClassName('actions')[0];
+    position = document.getElementsByClassName('actions group')[0];
     if (!position && document.getElementById('maincontent') !== null) {
         var iframe = document.getElementById('maincontent');
         var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
