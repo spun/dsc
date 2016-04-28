@@ -17,7 +17,10 @@ function getVideoId() {
 
 function createButtonUI(url) {
     'use strict';
-    var dsc_button, span, link, dsc_button_menu;
+    var dsc_button;
+    var span;
+    var link;
+    var dsc_button_menu;
 
     dsc_button = document.getElementById('dsc-button');
     if (dsc_button !== null) {
@@ -53,7 +56,8 @@ function createButtonUI(url) {
 
 function getVideoUrl(videoId, callback) {
     'use strict';
-    var xmlhttp, yql = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from json where url="https://api.twitch.tv/api/vods/' + videoId + '/access_token"') + '&format=json';
+    var xmlhttp;
+    var yql = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from json where url="https://api.twitch.tv/api/vods/' + videoId + '/access_token"') + '&format=json';
 
     if (XMLHttpRequest) {
         xmlhttp = new XMLHttpRequest();
