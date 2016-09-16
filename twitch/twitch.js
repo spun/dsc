@@ -54,10 +54,40 @@ function createButtonUI(url) {
     };
 }
 
-function getVideoUrl(videoId, callback) {
+function getClientId(callback) {
     'use strict';
     var xmlhttp;
-    var yql = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from json where url="https://api.twitch.tv/api/vods/' + videoId + '/access_token"') + '&format=json';
+    var playerFileUrl = 'https://player.twitch.tv/js/player.js';
+
+    if (XMLHttpRequest) {
+        xmlhttp = new XMLHttpRequest();
+    } else {
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+
+            var rawResponseStr = xmlhttp.responseText;
+            var re = /\{"Client-ID":"(\w+)"\}/;
+            var m = re.exec(rawResponseStr);
+
+            if (m !== null) {
+                if (m.index === re.lastIndex) {
+                    re.lastIndex = re.lastIndex + 1;
+                }
+                callback(m[1]);
+            }
+        }
+    };
+    xmlhttp.open("GET", playerFileUrl, true);
+    xmlhttp.send();
+}
+
+function getVideoUrl(videoId, clientId, callback) {
+    'use strict';
+    var xmlhttp;
+    var yql = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from json where url="https://api.twitch.tv/api/vods/' + videoId + '/access_token?client_id=' + clientId + '"') + '&format=json';
 
     if (XMLHttpRequest) {
         xmlhttp = new XMLHttpRequest();
@@ -81,10 +111,12 @@ function getVideoUrl(videoId, callback) {
 
 (function () {
     'use strict';
-    var id = getVideoId();
-    if (id) {
-        getVideoUrl(id, function (url) {
-            createButtonUI(url);
+    var videoId = getVideoId();
+    if (videoId) {
+        getClientId(function (clientId) {
+            getVideoUrl(videoId, clientId, function (url) {
+                createButtonUI(url);
+            });
         });
     }
 }());
