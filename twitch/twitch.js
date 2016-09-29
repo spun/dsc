@@ -32,12 +32,12 @@ function createButtonUI(url) {
     span.setAttribute('class', 'ember-view');
 
     link = document.createElement('a');
-    link.setAttribute('class', 'button glyph-only');
+    link.setAttribute('class', 'button mg-l-1');
     link.textContent = 'Descarga ';
     link.href = url;
     span.appendChild(link);
 
-    document.getElementsByClassName('channel-actions')[0].appendChild(span);
+    document.getElementsByClassName('cn-metabar__more')[0].appendChild(span);
 
     span.onclick = function () {
         dsc_button_menu = document.getElementById('dsc-list-menu');
