@@ -87,7 +87,7 @@ function getClientId(callback) {
 function getVideoUrl(videoId, clientId, callback) {
     'use strict';
     var xmlhttp;
-    var yql = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from json where url="https://api.twitch.tv/api/vods/' + videoId + '/access_token?client_id=' + clientId + '"') + '&format=json';
+    var signatureAndTokenUrl = 'https://api.twitch.tv/api/vods/' + videoId + '/access_token?client_id=' + clientId + '&format=json';
 
     if (XMLHttpRequest) {
         xmlhttp = new XMLHttpRequest();
@@ -97,7 +97,8 @@ function getVideoUrl(videoId, clientId, callback) {
 
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            var data = JSON.parse(xmlhttp.responseText).query.results.json;
+
+            var data = JSON.parse(xmlhttp.responseText);
             var signature = data.sig;
             var token = encodeURIComponent(data.token);
 
@@ -105,7 +106,7 @@ function getVideoUrl(videoId, clientId, callback) {
             callback(url);
         }
     };
-    xmlhttp.open("GET", yql, true);
+    xmlhttp.open("GET", signatureAndTokenUrl, true);
     xmlhttp.send();
 }
 
