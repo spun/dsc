@@ -7,10 +7,10 @@ function getVideoId() {
     var match;
     var locationUrl = location.href;
 
-    regExp = /^.*(twitch\.tv\/[\w]+\/[b\|c\|v]\/)([0-9]+)*/;
+    regExp = /^.*twitch\.tv\/videos\/([0-9]+)*/;
     match = locationUrl.match(regExp);
     if (match) {
-        return match[2];
+        return match[1];
     }
     return false;
 }
