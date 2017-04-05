@@ -105,14 +105,14 @@ function setHtml5Player(url, type) {
 
 function createButtonUI() {
     'use strict';
-    var dsc_button, image, button, span, btn_reference;
+    var dsc_button, image, button, span, actions_bar, first_action_btn;
 
     dsc_button = document.getElementById('dsc-button');
     if (dsc_button !== null) {
         dsc_button.parentNode.removeChild(dsc_button);
     }
 
-    image = document.createElement('img');
+    /*image = document.createElement('img');
     image.setAttribute('class', 'yt-uix-button-arrow');
     image.src = '//s.ytimg.com/yt/img/pixel-vfl73.gif';
     image.alt = '';
@@ -134,10 +134,33 @@ function createButtonUI() {
     span.textContent = 'Descargar ';
 
     button.appendChild(span);
-    button.appendChild(image);
+    button.appendChild(image);*/
+    
+    var span = document.createElement('span');
+    span.setAttribute('class', 'yt-uix-button-content');
+    span.textContent = 'Descargar ';
+    
+    var button = document.createElement('button');
+    button.setAttribute('class', 'yt-uix-button yt-uix-button-size-default yt-uix-button-opacity yt-uix-button-has-icon no-icon-markup action-panel-trigger action-panel-trigger-overflow yt-uix-tooltip ');
+    button.type = 'button';
+    button.onclick = ';return false;';
+    button.setAttribute('role', 'button');
+    button.id = 'dsc-button';
+    button.setAttribute('aria-haspopup', 'true');
+    button.setAttribute('aria-label', 'Menú descarga');
+    button.setAttribute('aria-pressed', 'false');
+    button.setAttribute('data-tooltip-text', 'Descargar');
+    button.title = 'Descarga el video';
+    button.setAttribute('data-button-menu-id', 'dsc-list-menu');
+    button.appendChild(span);
+    
+    var div = document.createElement('div');
+    div.setAttribute('class', 'yt-uix-menu');
+    div.appendChild(button);
 
-    btn_reference = document.getElementsByClassName('yt-uix-overlay')[0];
-    btn_reference.parentNode.insertBefore(button, btn_reference);
+    actions_bar = document.getElementById('watch8-secondary-actions');
+    first_action_btn = actions_bar.firstChild;
+    actions_bar.insertBefore(div, first_action_btn);
 }
 
 function createDropDownMenuUI() {
