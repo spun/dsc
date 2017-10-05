@@ -37,7 +37,7 @@ function createButtonUI(url) {
     link.href = url;
     span.appendChild(link);
 
-    document.getElementsByClassName('cn-metabar__more')[0].appendChild(span);
+    document.getElementsByClassName('video-info-bar__action-container')[0].appendChild(span);
 
     span.onclick = function () {
         dsc_button_menu = document.getElementById('dsc-list-menu');
