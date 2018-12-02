@@ -1,10 +1,6 @@
 # download-script-collection
 
-## Bookmarklets
-
-[Production](javascript:(function(){url='https://spun.github.io/dsc/dist/main.js';document.body.appendChild(document.createElement('script')).src=url;})();)
-
-[Development](javascript:(function(){url='http://localhost:9000/main.js';document.body.appendChild(document.createElement('script')).src=url;})();)  
+[http://spun.github.com/dsc/](http://spun.github.com/dsc/)
 
 ## Run
 
