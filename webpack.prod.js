@@ -1,12 +1,13 @@
-const merge = require("webpack-merge");
-const webpack = require("webpack");
-const common = require("./webpack.common.js");
+const merge = require('webpack-merge');
+const webpack = require('webpack');
+const common = require('./webpack.common.js');
 
 module.exports = merge(common, {
-  mode: "production",
+  mode: 'production',
   plugins: [
     new webpack.DefinePlugin({
-      "process.env.APP_PATH": JSON.stringify("https://spun.github.io/dsc/dist/")
-    })
-  ]
+      'process.env.APP_PATH': JSON.stringify('https://spun.github.io/dsc/dist/'),
+    }),
+  ],
+  optimization: { namedChunks: true },
 });
