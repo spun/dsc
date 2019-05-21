@@ -27,5 +27,5 @@ module.exports = {
       },
     ],
   },
-  plugins: [new CleanWebpackPlugin(['dist'])],
+  plugins: [new CleanWebpackPlugin()],
 };
