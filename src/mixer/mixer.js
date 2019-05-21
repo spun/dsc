@@ -27,7 +27,7 @@ function getManifestText(manifestUrl) {
   fetch(manifestUrl)
     .then(response => response.text())
     .then((text) => {
-      const result = text.replace(/source/g, `${baseUrl}source`);
+      const result = text.replace(/^.*\d+\.ts$/gm, value => baseUrl + value);
       downloadAsFile('result.m3u8', result);
     });
 }
