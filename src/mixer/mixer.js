@@ -2,7 +2,7 @@ function getManifestUrl() {
   const results = window.performance
     .getEntriesByType('resource')
     // .filter(resource => resource.initiatorType === 'xmlhttprequest') // changes between browsers
-    .filter(request => request.name.endsWith('manifest.m3u8'));
+    .filter(request => request.name.includes('manifest.m3u8'));
 
   return results[results.length - 1].name;
 }
@@ -22,7 +22,7 @@ function downloadAsFile(filename, text) {
 }
 
 function getManifestText(manifestUrl) {
-  const baseUrl = manifestUrl.replace('manifest.m3u8', '');
+  const baseUrl = manifestUrl.split('manifest.m3u8')[0];
 
   fetch(manifestUrl)
     .then(response => response.text())
