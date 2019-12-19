@@ -13,9 +13,11 @@ import Popup from '../popup/popup';
  */
 function objectifyVideoFormat(videoFormatArray) {
   const object = {};
-  videoFormatArray.forEach((formatItem) => {
+  videoFormatArray.forEach(formatItem => {
     const valueArray = formatItem.split('=');
-    object[decodeURIComponent(valueArray[0])] = decodeURIComponent(valueArray.slice(1).join('='));
+    object[decodeURIComponent(valueArray[0])] = decodeURIComponent(
+      valueArray.slice(1).join('=')
+    );
   });
   return object;
 }
@@ -23,7 +25,7 @@ function objectifyVideoFormat(videoFormatArray) {
 // Extract all available format from the raw string
 function extractVideoFormats(rawData) {
   const videoFormats = [];
-  rawData.forEach((item) => {
+  rawData.forEach(item => {
     const splitData = item.split('&');
     videoFormats.push(objectifyVideoFormat(splitData));
   });
@@ -33,7 +35,7 @@ function extractVideoFormats(rawData) {
 // Add all the formats available as items of the UI popup
 function addFormatsToPopup(popup, videoFormats, videoTitle) {
   // Add each format to the list
-  videoFormats.forEach((formatData) => {
+  videoFormats.forEach(formatData => {
     // Retrieve necessary item info from "formatData"
     const formatTitle = getFormatDescription(formatData.itag);
     const formatSubtitle = formatData.size || formatData.quality || '';
@@ -47,7 +49,9 @@ function main() {
   // Popup
   const popup = new Popup();
   // Extract muxed formats (Video + Audio)
-  const muxedFormatsData = ytplayer.config.args.url_encoded_fmt_stream_map.split(',');
+  const muxedFormatsData = ytplayer.config.args.url_encoded_fmt_stream_map.split(
+    ','
+  );
   const muxedFormats = extractVideoFormats(muxedFormatsData);
   // Extract adaptive formats (Video or Audio)
   const adaptiveFormatsData = ytplayer.config.args.adaptive_fmts.split(',');

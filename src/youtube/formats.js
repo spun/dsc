@@ -37,7 +37,7 @@ const formats = {
   248: { description: '*Full HD 1080 WebM', format: 'WebM', extension: 'webm' },
   264: { description: '*HD 1440p MP4', format: 'MP4', extension: 'mp4' },
   298: { description: '*HD 720p MP4 (60fps)', format: 'MP4', extension: 'mp4' },
-  299: { description: '*Full HD 1080 (60fps)', format: 'MP4', extension: 'mp4' },
+  299: { description: '*Full HD 1080 (60fps)', format: 'MP4', extension: 'mp4' }
 };
 
 function getFormatDescription(itag) {

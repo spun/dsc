@@ -10,7 +10,10 @@ function getManifestUrl() {
 function downloadAsFile(filename, text) {
   // Create link element
   const element = document.createElement('a');
-  element.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`);
+  element.setAttribute(
+    'href',
+    `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`
+  );
   element.setAttribute('download', filename);
   // Add to dom
   element.style.display = 'none';
@@ -26,7 +29,7 @@ function getManifestText(manifestUrl) {
 
   fetch(manifestUrl)
     .then(response => response.text())
-    .then((text) => {
+    .then(text => {
       const result = text.replace(/^.*\d+\.ts$/gm, value => baseUrl + value);
       downloadAsFile('result.m3u8', result);
     });

@@ -14,7 +14,7 @@ function getClientId() {
 
   return fetch(playerFileUrl)
     .then(response => response.text())
-    .then((rawResponseStr) => {
+    .then(rawResponseStr => {
       const re = /\{"Client-ID":"(\w+)"\}/;
       const m = re.exec(rawResponseStr);
 
@@ -33,7 +33,7 @@ function getVideoUrl(videoId, clientId) {
 
   return fetch(signatureAndTokenUrl)
     .then(response => response.json())
-    .then((data) => {
+    .then(data => {
       const signature = data.sig;
       const token = encodeURIComponent(data.token);
 
@@ -46,7 +46,7 @@ function main() {
   const videoId = getVideoId();
   getClientId()
     .then(clientId => getVideoUrl(videoId, clientId))
-    .then((url) => {
+    .then(url => {
       window.location.href = url;
     });
 }

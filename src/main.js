@@ -1,6 +1,7 @@
 (() => {
   // publicPath configuration
-  __webpack_public_path__ = process.env.APP_PATH; /* eslint-disable-line no-undef, camelcase */
+  __webpack_public_path__ /* eslint-disable-line no-undef, camelcase */ =
+    process.env.APP_PATH;
 
   // Check current domain
   let s;
@@ -21,7 +22,7 @@
 
   // run
   if (s) {
-    s.then((module) => {
+    s.then(module => {
       module.default();
     });
   }
