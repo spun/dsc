@@ -10,7 +10,6 @@ function createPopupBox() {
 
 // Box header
 function createPopupHeader(popup) {
-  console.log(popup.hide);
   // Header
   const header = document.createElement('p');
   header.classList.add('header');
@@ -83,8 +82,8 @@ class Popup {
   }
 
   // Create and add a new list item to the box list
-  addItemToList(title, subtitle, url) {
-    const li = createPopupListItem(title, subtitle, url);
+  addItemToList(data) {
+    const li = createPopupListItem(data.title, data.subtitle, data.url);
     this.listElement.appendChild(li);
   }
 
