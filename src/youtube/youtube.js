@@ -133,7 +133,7 @@ const getFormats = new Promise((resolve, reject) => {
     const results = getFormatsUsingYtPlayerPlayerResponse(
       playerResponseProperty
     );
-    resolve(results);
+    return resolve(results);
   }
 
   // Method 2: Using the property "url_encoded_fmt_stream_map" from the
@@ -146,7 +146,7 @@ const getFormats = new Promise((resolve, reject) => {
     const results = getFormatsUsingYtPlayerUrlEncodedFmtStreamMap(
       uefsmProperty
     );
-    resolve(results);
+    return resolve(results);
   }
 
   // Method 3: If none all the above methods are available, we can make a new
