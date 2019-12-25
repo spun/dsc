@@ -1,3 +1,5 @@
+import 'whatwg-fetch';
+
 function getManifestUrl() {
   const results = window.performance
     .getEntriesByType('resource')
@@ -7,21 +9,22 @@ function getManifestUrl() {
   return results[results.length - 1].name;
 }
 
+// Create and trigger file dowload (https://stackoverflow.com/a/33542499)
 function downloadAsFile(filename, text) {
-  // Create link element
-  const element = document.createElement('a');
-  element.setAttribute(
-    'href',
-    `data:text/plain;charset=utf-8,${encodeURIComponent(text)}`
-  );
-  element.setAttribute('download', filename);
-  // Add to dom
-  element.style.display = 'none';
-  document.body.appendChild(element);
-  // trigger click event
-  element.click();
-  // remove from dom
-  document.body.removeChild(element);
+  const blob = new Blob([text], { type: 'text/plain' });
+  if (window.navigator.msSaveOrOpenBlob) {
+    window.navigator.msSaveBlob(blob, filename);
+  } else {
+    const elem = window.document.createElement('a');
+    elem.href = window.URL.createObjectURL(blob);
+    elem.download = filename;
+    // Add to dom
+    document.body.appendChild(elem);
+    // trigger click event
+    elem.click();
+    // remove from dom
+    document.body.removeChild(elem);
+  }
 }
 
 function getManifestText(manifestUrl) {
@@ -32,6 +35,9 @@ function getManifestText(manifestUrl) {
     .then(text => {
       const result = text.replace(/^.*\d+\.ts$/gm, value => baseUrl + value);
       downloadAsFile('result.m3u8', result);
+    })
+    .catch(e => {
+      console.error(e);
     });
 }
 
