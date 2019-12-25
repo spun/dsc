@@ -6,6 +6,15 @@ import { getFormatDescription } from './formats';
 import Popup from '../popup/popup';
 import 'whatwg-fetch';
 
+function getVideoIdFromUrl(urlString) {
+  const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = urlString.match(regExp);
+  if (match) {
+    return match[2];
+  }
+  return '';
+}
+
 /**
  * Each video format is an array of strings where each strings in the array
  * is a parameter of the format.
@@ -69,7 +78,8 @@ function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON) {
 
   // Title that we are going to append to the url to force the download
   const videoTitle =
-    escape(ytplayer.config.args.title.replace(/"/g, '')) || 'download';
+    escape(playerResponseJSON.videoDetails.title.replace(/"/g, '')) ||
+    'download';
 
   const result = [];
   allFormats.forEach(item => {
@@ -84,8 +94,7 @@ function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON) {
 }
 
 // Extract using "get_video_info" content
-function getFormatsUsingGetVideoInfo() {
-  const videoId = ytplayer.config.args.video_id;
+function getFormatsUsingGetVideoInfo(videoId) {
   return fetch(
     `/get_video_info?video_id=${videoId}&ps=default&eurl=&gl=US&hl=en&disable_polymer=true`
   )
@@ -123,44 +132,75 @@ function getFormatsUsingGetVideoInfo() {
  * of those methods may require a new request.
  */
 const getFormats = new Promise((resolve, reject) => {
-  const { args } = ytplayer.config;
+  const locationUrl = window.location.href;
+  const urlVideoId = getVideoIdFromUrl(locationUrl);
 
-  // Method 1: Using the property "player_response" from the "ytplayer"
-  // variable that we can use when we are in a video webpage.
-  if ({}.hasOwnProperty.call(args, 'player_response')) {
-    console.log('Using "getFormatsUsingYtPlayerPlayerResponse"');
-    const playerResponseProperty = JSON.parse(args.player_response);
-    const results = getFormatsUsingYtPlayerPlayerResponse(
-      playerResponseProperty
-    );
-    return resolve(results);
+  // If we can't get the video id, we probably are in a page that doesn't contain any
+  // video. So we skip all the methods and fail the promise.
+  // TODO: Improve error messages
+  if (urlVideoId !== '') {
+    // While browsing the webpage as a SPA, the values from "ytplayer" get "stuck"
+    // with old values (from the first page visited) and only a page refresh can fix this
+    // situation. We don't know if there is a way to get the new "ytplayer" values
+    // from another property, but until then, we check "ytplayer" and make sure that
+    // it holds the values of the current webpage video. If the video ids are different
+    // we'll get all the data using the method 3 that makes a new request and doesn't
+    // depend on "ytplayer".
+    let isYtPlayerDataAvailable = false;
+    if (
+      ytplayer &&
+      ytplayer.config &&
+      ytplayer.config.args &&
+      {}.hasOwnProperty.call(ytplayer.config.args, 'video_id')
+    ) {
+      const jsVideoId = ytplayer.config.args.video_id;
+      if (urlVideoId === jsVideoId) {
+        isYtPlayerDataAvailable = true;
+      }
+    }
+
+    if (isYtPlayerDataAvailable === true) {
+      const { args } = ytplayer.config;
+
+      // Method 1: Using the property "player_response" from the "ytplayer"
+      // variable that we can use when we are in a video webpage.
+      if ({}.hasOwnProperty.call(args, 'player_response')) {
+        console.log('Using "getFormatsUsingYtPlayerPlayerResponse"');
+        const playerResponseProperty = JSON.parse(args.player_response);
+        const results = getFormatsUsingYtPlayerPlayerResponse(
+          playerResponseProperty
+        );
+        return resolve(results);
+      }
+
+      // Method 2: Using the property "url_encoded_fmt_stream_map" from the
+      // "ytplayer" variable that we can use when we are in a video webpage.
+      // The structure of this property is more awkward to use, but we have all
+      // the video formats available without the need of trigger another request.
+      if ({}.hasOwnProperty.call(args, 'url_encoded_fmt_stream_map')) {
+        console.log('Using "getFormatsUsingYtPlayerUrlEncodedFmtStreamMap"');
+        const uefsmProperty = args.url_encoded_fmt_stream_map;
+        const results = getFormatsUsingYtPlayerUrlEncodedFmtStreamMap(
+          uefsmProperty
+        );
+        return resolve(results);
+      }
+    }
+
+    // Method 3: If none all the above methods are available, we can make a new
+    // request to the "get_video_info" content. This will get us way more information
+    // about the current video, includirng the available formats that we are trying to get.
+    console.log('Using "getFormatsUsingGetVideoInfo"');
+    return getFormatsUsingGetVideoInfo(urlVideoId)
+      .then(results => {
+        resolve(results);
+      })
+      .catch(e => {
+        console.error('getFormatsUsingGetVideoInfo failed', e);
+        reject(e);
+      });
   }
-
-  // Method 2: Using the property "url_encoded_fmt_stream_map" from the
-  // "ytplayer" variable that we can use when we are in a video webpage.
-  // The structure of this property is more awkward to use, but we have all
-  // the video formats available without the need of trigger another request.
-  if ({}.hasOwnProperty.call(args, 'url_encoded_fmt_stream_map')) {
-    console.log('Using "getFormatsUsingYtPlayerUrlEncodedFmtStreamMap"');
-    const uefsmProperty = args.url_encoded_fmt_stream_map;
-    const results = getFormatsUsingYtPlayerUrlEncodedFmtStreamMap(
-      uefsmProperty
-    );
-    return resolve(results);
-  }
-
-  // Method 3: If none all the above methods are available, we can make a new
-  // request to the "get_video_info" content. This will get us way more information
-  // about the current video, includirng the available formats that we are trying to get.
-  console.log('Using "getFormatsUsingGetVideoInfo"');
-  return getFormatsUsingGetVideoInfo()
-    .then(results => {
-      resolve(results);
-    })
-    .catch(() => {
-      console.error('getFormatsUsingGetVideoInfo failed');
-      reject();
-    });
+  return reject();
 });
 
 function main() {
@@ -174,7 +214,7 @@ function main() {
       });
       popup.show();
     })
-    .catch(() => console.error('An error occurred'));
+    .catch(e => console.error('An error occurred', e));
 }
 
 export default main;
