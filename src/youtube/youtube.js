@@ -50,7 +50,7 @@ function getFormatsUsingYtPlayerUrlEncodedFmtStreamMap(uefsmProperty) {
   const adaptiveFormatsSplit = ytplayer.config.args.adaptive_fmts.split(',');
   const adaptiveFormats = extractUefsmVideoFormats(adaptiveFormatsSplit);
   // Merge and add all formats to the result list
-  const allFormats = muxedFormats.concat(adaptiveFormats);
+  const allFormats = muxedFormats.concat(adaptiveFormats).filter(item => item);
 
   // Title that we are going to append to the url to force the download
   const videoTitle =
@@ -74,7 +74,7 @@ function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON) {
     formats: baseFormats, // Base formats (Video + Audio)
     adaptiveFormats // Adaptative formats (separate video and audio)
   } = playerResponseJSON.streamingData;
-  const allFormats = baseFormats.concat(adaptiveFormats);
+  const allFormats = baseFormats.concat(adaptiveFormats).filter(item => item);
 
   // Title that we are going to append to the url to force the download
   const videoTitle =
