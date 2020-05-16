@@ -13,8 +13,8 @@ function getClientId() {
   const playerFileUrl = 'https://player.twitch.tv/js/player.js';
 
   return fetch(playerFileUrl)
-    .then(response => response.text())
-    .then(rawResponseStr => {
+    .then((response) => response.text())
+    .then((rawResponseStr) => {
       const re = /\{"Client-ID":"(\w+)"\}/;
       const m = re.exec(rawResponseStr);
 
@@ -32,8 +32,8 @@ function getVideoUrl(videoId, clientId) {
   const signatureAndTokenUrl = `https://api.twitch.tv/api/vods/${videoId}/access_token?client_id=${clientId}&format=json`;
 
   return fetch(signatureAndTokenUrl)
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       const signature = data.sig;
       const token = encodeURIComponent(data.token);
 
@@ -45,8 +45,8 @@ function getVideoUrl(videoId, clientId) {
 function main() {
   const videoId = getVideoId();
   getClientId()
-    .then(clientId => getVideoUrl(videoId, clientId))
-    .then(url => {
+    .then((clientId) => getVideoUrl(videoId, clientId))
+    .then((url) => {
       window.location.href = url;
     });
 }

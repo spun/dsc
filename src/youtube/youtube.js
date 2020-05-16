@@ -23,10 +23,10 @@ function getVideoIdFromUrl(urlString) {
  */
 function objectifyVideoFormat(videoFormatArray) {
   const object = {};
-  videoFormatArray.forEach(formatItem => {
+  videoFormatArray.forEach((formatItem) => {
     const valueArray = formatItem.split('=');
     object[decodeURIComponent(valueArray[0])] = decodeURIComponent(
-      valueArray.slice(1).join('=')
+      valueArray.slice(1).join('='),
     );
   });
   return object;
@@ -35,7 +35,7 @@ function objectifyVideoFormat(videoFormatArray) {
 // Retrieve all available format from the raw string
 function extractUefsmVideoFormats(rawData) {
   const videoFormats = [];
-  rawData.forEach(item => {
+  rawData.forEach((item) => {
     const splitData = item.split('&');
     videoFormats.push(objectifyVideoFormat(splitData));
   });
@@ -50,19 +50,18 @@ function getFormatsUsingYtPlayerUrlEncodedFmtStreamMap(uefsmProperty) {
   const adaptiveFormatsSplit = ytplayer.config.args.adaptive_fmts.split(',');
   const adaptiveFormats = extractUefsmVideoFormats(adaptiveFormatsSplit);
   // Merge and add all formats to the result list
-  const allFormats = muxedFormats.concat(adaptiveFormats).filter(item => item);
+  const allFormats = muxedFormats.concat(adaptiveFormats).filter((item) => item);
 
   // Title that we are going to append to the url to force the download
-  const videoTitle =
-    escape(ytplayer.config.args.title.replace(/"/g, '')) || 'download';
+  const videoTitle = escape(ytplayer.config.args.title.replace(/"/g, '')) || 'download';
 
   const result = [];
-  allFormats.forEach(item => {
+  allFormats.forEach((item) => {
     // Add to results
     result.push({
       title: getFormatDescription(item.itag),
       subtitle: item.size || item.quality || '',
-      url: `${item.url}&title=${videoTitle}`
+      url: `${item.url}&title=${videoTitle}`,
     });
   });
   return result;
@@ -72,22 +71,21 @@ function getFormatsUsingYtPlayerUrlEncodedFmtStreamMap(uefsmProperty) {
 function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON) {
   const {
     formats: baseFormats, // Base formats (Video + Audio)
-    adaptiveFormats // Adaptative formats (separate video and audio)
+    adaptiveFormats, // Adaptative formats (separate video and audio)
   } = playerResponseJSON.streamingData;
-  const allFormats = baseFormats.concat(adaptiveFormats).filter(item => item);
+  const allFormats = baseFormats.concat(adaptiveFormats).filter((item) => item);
 
   // Title that we are going to append to the url to force the download
-  const videoTitle =
-    escape(playerResponseJSON.videoDetails.title.replace(/"/g, '')) ||
-    'download';
+  const videoTitle = escape(playerResponseJSON.videoDetails.title.replace(/"/g, ''))
+    || 'download';
 
   const result = [];
-  allFormats.forEach(item => {
+  allFormats.forEach((item) => {
     // Add to results
     result.push({
       title: getFormatDescription(item.itag),
       subtitle: item.size || item.quality || '',
-      url: `${item.url}&title=${videoTitle}`
+      url: `${item.url}&title=${videoTitle}`,
     });
   });
   return result;
@@ -96,33 +94,29 @@ function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON) {
 // Extract using "get_video_info" content
 function getFormatsUsingGetVideoInfo(videoId) {
   return fetch(
-    `/get_video_info?video_id=${videoId}&ps=default&eurl=&gl=US&hl=en&disable_polymer=true`
+    `/get_video_info?video_id=${videoId}&ps=default&eurl=&gl=US&hl=en&disable_polymer=true`,
   )
-    .then(response => response.text())
-    .then(body => {
+    .then((response) => response.text())
+    .then((body) => {
       // Extract all pair values from the response
       const pairValues = decodeURIComponent(body).split('&');
       // Retreive the value with the key "player_response"
-      const playerResponseRaw = pairValues.find(value => {
-        return value.split('=')[0] === 'player_response';
-      });
+      const playerResponseRaw = pairValues.find((value) => value.split('=')[0] === 'player_response');
       // From that key-value pair, we only are interested in the value
       const playerResponseSplit = playerResponseRaw.split('=');
       playerResponseSplit.shift(); // Ignore key
       const playerResponseSplitValue = playerResponseSplit.join('=');
       return playerResponseSplitValue;
     })
-    .then(playerResponseString => {
+    .then((playerResponseString) => (
       // We may need to replace some simbols
       // const sanitazed = value.replace('\u0026', '&amp;');
-      return JSON.parse(playerResponseString);
-    })
-    .then(playerResponseJSON => {
+      JSON.parse(playerResponseString)))
+    .then((playerResponseJSON) => (
       // At this point, we have all the info in a strcuture really similar
       // to the one used by "getFormatsUsingYtPlayerPlayerResponse", so we
       // call the function with our data.
-      return getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON);
-    });
+      getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON)));
 }
 
 /**
@@ -148,10 +142,10 @@ const getFormats = new Promise((resolve, reject) => {
     // depend on "ytplayer".
     let isYtPlayerDataAvailable = false;
     if (
-      ytplayer &&
-      ytplayer.config &&
-      ytplayer.config.args &&
-      {}.hasOwnProperty.call(ytplayer.config.args, 'video_id')
+      ytplayer
+      && ytplayer.config
+      && ytplayer.config.args
+      && {}.hasOwnProperty.call(ytplayer.config.args, 'video_id')
     ) {
       const jsVideoId = ytplayer.config.args.video_id;
       if (urlVideoId === jsVideoId) {
@@ -168,7 +162,7 @@ const getFormats = new Promise((resolve, reject) => {
         console.log('Using "getFormatsUsingYtPlayerPlayerResponse"');
         const playerResponseProperty = JSON.parse(args.player_response);
         const results = getFormatsUsingYtPlayerPlayerResponse(
-          playerResponseProperty
+          playerResponseProperty,
         );
         return resolve(results);
       }
@@ -181,7 +175,7 @@ const getFormats = new Promise((resolve, reject) => {
         console.log('Using "getFormatsUsingYtPlayerUrlEncodedFmtStreamMap"');
         const uefsmProperty = args.url_encoded_fmt_stream_map;
         const results = getFormatsUsingYtPlayerUrlEncodedFmtStreamMap(
-          uefsmProperty
+          uefsmProperty,
         );
         return resolve(results);
       }
@@ -192,10 +186,10 @@ const getFormats = new Promise((resolve, reject) => {
     // about the current video, includirng the available formats that we are trying to get.
     console.log('Using "getFormatsUsingGetVideoInfo"');
     return getFormatsUsingGetVideoInfo(urlVideoId)
-      .then(results => {
+      .then((results) => {
         resolve(results);
       })
-      .catch(e => {
+      .catch((e) => {
         console.error('getFormatsUsingGetVideoInfo failed', e);
         reject(e);
       });
@@ -208,13 +202,13 @@ function main() {
   const popup = new Popup();
 
   getFormats
-    .then(formatResults => {
-      formatResults.forEach(result => {
+    .then((formatResults) => {
+      formatResults.forEach((result) => {
         popup.addItemToList(result);
       });
       popup.show();
     })
-    .catch(e => console.error('An error occurred', e));
+    .catch((e) => console.error('An error occurred', e));
 }
 
 export default main;
