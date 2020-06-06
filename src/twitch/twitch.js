@@ -1,3 +1,5 @@
+/* global commonOptions */
+
 function getVideoId() {
   const locationUrl = window.location.href;
 
@@ -10,22 +12,7 @@ function getVideoId() {
 }
 
 function getClientId() {
-  const playerFileUrl = 'https://player.twitch.tv/js/player.js';
-
-  return fetch(playerFileUrl)
-    .then((response) => response.text())
-    .then((rawResponseStr) => {
-      const re = /\{"Client-ID":"(\w+)"\}/;
-      const m = re.exec(rawResponseStr);
-
-      if (m !== null) {
-        if (m.index === re.lastIndex) {
-          re.lastIndex += 1;
-        }
-        return m[1];
-      }
-      return Promise.reject(new Error('Client ID not found'));
-    });
+  return commonOptions.headers['Client-ID'];
 }
 
 function getVideoUrl(videoId, clientId) {
@@ -42,13 +29,11 @@ function getVideoUrl(videoId, clientId) {
     });
 }
 
-function main() {
+async function main() {
   const videoId = getVideoId();
-  getClientId()
-    .then((clientId) => getVideoUrl(videoId, clientId))
-    .then((url) => {
-      window.location.href = url;
-    });
+  const clientId = getClientId();
+  const videoUrl = await getVideoUrl(videoId, clientId);
+  window.location.href = videoUrl;
 }
 
 export default main;
