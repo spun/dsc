@@ -24,7 +24,7 @@ function getVideoUrl(videoId, clientId) {
       const signature = data.sig;
       const token = encodeURIComponent(data.token);
 
-      const url = `http://usher.twitch.tv/vod/${videoId}?nauthsig=${signature}&nauth=${token}`;
+      const url = `https://usher.ttvnw.net/vod/${videoId}.m3u8?sig=${signature}&token=${token}`;
       return url;
     });
 }
