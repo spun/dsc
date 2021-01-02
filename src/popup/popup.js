@@ -68,7 +68,7 @@ function createPopupListItem(titleText, subtitleText, url) {
 
 // Popup class
 class Popup {
-  constructor() {
+  constructor(clickListener) {
     this.boxId = 'dsc_popup';
     // Create main box and attach to body
     this.boxElement = createPopupBox();
@@ -79,11 +79,19 @@ class Popup {
     // Create items list and attach to box
     this.listElement = createPopupList();
     this.boxElement.appendChild(this.listElement);
+    // Notify click events
+    this.clickListener = clickListener;
   }
 
   // Create and add a new list item to the box list
   addItemToList(data) {
     const li = createPopupListItem(data.title, data.subtitle, data.url);
+    li.onclick = () => {
+      this.clickListener(data);
+      // Prevent navigation. We do this instead of removing the link element
+      // in case the user wants to open the element url in a new tab.
+      return false;
+    };
     this.listElement.appendChild(li);
   }
 

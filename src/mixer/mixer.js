@@ -1,5 +1,3 @@
-import 'whatwg-fetch';
-
 function getManifestUrl() {
   const results = window.performance
     .getEntriesByType('resource')

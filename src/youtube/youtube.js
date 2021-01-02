@@ -2,9 +2,15 @@
 
 // Video format dictionary
 import { getFormatDescription } from './formats';
+// Subtitle time formats util
+import { milisecondsToSrtTime } from './utils/subtitleTimeUtils';
 // UI popup
 import Popup from '../popup/popup';
-import 'whatwg-fetch';
+
+const elementType = {
+  VIDEO: 'element_type_video',
+  SUBTITLE: 'element_type_subtitle',
+};
 
 function getVideoIdFromUrl(urlString) {
   const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -125,7 +131,7 @@ function getFormatsUsingGetVideoInfo(videoId) {
  * we are able to get the information. We use a Promise because some
  * of those methods may require a new request.
  */
-const getFormats = new Promise((resolve, reject) => {
+const getFormats = () => new Promise((resolve, reject) => {
   const locationUrl = window.location.href;
   const urlVideoId = getVideoIdFromUrl(locationUrl);
 
@@ -141,13 +147,8 @@ const getFormats = new Promise((resolve, reject) => {
     // we'll get all the data using the method 3 that makes a new request and doesn't
     // depend on "ytplayer".
     let isYtPlayerDataAvailable = false;
-    if (
-      ytplayer
-      && ytplayer.config
-      && ytplayer.config.args
-      && {}.hasOwnProperty.call(ytplayer.config.args, 'video_id')
-    ) {
-      const jsVideoId = ytplayer.config.args.video_id;
+    const jsVideoId = ytplayer?.config?.args?.video_id;
+    if (jsVideoId) {
       if (urlVideoId === jsVideoId) {
         isYtPlayerDataAvailable = true;
       }
@@ -197,18 +198,119 @@ const getFormats = new Promise((resolve, reject) => {
   return reject();
 });
 
-function main() {
-  // Popup
-  const popup = new Popup();
+/**
+ * Get a list of all available subtitles for the current video url
+ */
+function getAvailableSubtitles() {
+  // TODO: We also make this check for video formats. Extract so we can reuse it.
+  const locationUrl = window.location.href;
+  const urlVideoId = getVideoIdFromUrl(locationUrl);
+  // If we can't get the video id, we probably are in a page that doesn't contain any
+  // video. So we skip all the methods and fail the promise.
+  // TODO: Improve error messages
+  if (urlVideoId !== '') {
+    // While browsing the webpage as a SPA, the values from "ytplayer" get "stuck"
+    // with old values (from the first page visited) and only a page refresh can fix this
+    // situation. We don't know if there is a way to get the new "ytplayer" values
+    // from another property, but until then, we check "ytplayer" and make sure that
+    // it holds the values of the current webpage video.
+    const jsVideoId = ytplayer?.config?.args?.video_id;
+    if (!jsVideoId || jsVideoId !== urlVideoId) {
+      // We don't have an alternative solution to list available subtitles.
+      return [];
+    }
 
-  getFormats
-    .then((formatResults) => {
-      formatResults.forEach((result) => {
-        popup.addItemToList(result);
-      });
-      popup.show();
-    })
-    .catch((e) => console.error('An error occurred', e));
+    // Subtitle urls make use of a custom format. Beefore the download we need
+    // to transform it to a common subtitle format like srt. Because of that, url
+    // values are empty for subtitles and we need to set extra values required for
+    // the transformation and download triggered when the user selects a subtitle.
+    const captionsConfig = ytplayer.config.args.raw_player_response.captions;
+    const tracks = captionsConfig.playerCaptionsTracklistRenderer.captionTracks;
+    const result = tracks.map((track) => ({
+      title: track.name.simpleText,
+      subtitle: `Subtitle ${track.languageCode}`,
+      url: '',
+      extras: {
+        baseUrl: track.baseUrl,
+      },
+    }));
+    return result;
+  }
+  return [];
+}
+
+/**
+ * Fetch the subtitle content, create the lines of a new srt file
+ * with the expected format and trigger the download.
+ */
+async function downloadSubtitle(subtitleData) {
+  // Fetch subtitle content
+  const { baseUrl } = subtitleData.extras;
+  const response = await fetch(`${baseUrl}&fmt=json3`);
+  const text = await response.text();
+  const json = JSON.parse(text);
+
+  // Transform to srt format
+  let result = '';
+  json.events.forEach((line, index) => {
+    result += (`${index + 1}\r\n`);
+    result += `${milisecondsToSrtTime(line.tStartMs)} --> ${milisecondsToSrtTime(line.tStartMs + line.dDurationMs)}\r\n`;
+    line.segs.forEach((segment) => { result += (`${segment.utf8}\r\n`); });
+    result += ('\r\n');
+  });
+
+  // Trigger file download
+  const filename = 'subtitle.srt';
+  const blob = new Blob([result], { type: 'text/plain' });
+  const elem = window.document.createElement('a');
+  elem.href = window.URL.createObjectURL(blob);
+  elem.download = filename;
+  // Add to dom
+  document.body.appendChild(elem);
+  // trigger click event
+  elem.click();
+  // remove from dom
+  document.body.removeChild(elem);
+}
+
+async function main() {
+  // Popup
+  const popup = new Popup(async (data) => {
+    // Check what type of available downloads was selected
+    switch (data.type) {
+      case elementType.VIDEO:
+        // Navigate to download url
+        window.location.href = data.url;
+        break;
+      case elementType.SUBTITLE:
+        // Create subtitle file and trigger download
+        await downloadSubtitle(data);
+        break;
+      default:
+      // default code block
+    }
+  });
+
+  // VIDEO FORMATS
+  try {
+    const formatResults = await getFormats();
+    formatResults.forEach((videoData) => {
+      popup.addItemToList({ ...videoData, type: elementType.VIDEO });
+    });
+    popup.show();
+  } catch (e) {
+    console.error('An error occurred', e);
+  }
+
+  // SUBTITLES
+  const availableSubtitles = getAvailableSubtitles();
+  // Add all available subtitle to the list
+  availableSubtitles.forEach((subtitleData) => {
+    popup.addItemToList({ ...subtitleData, type: elementType.SUBTITLE });
+  });
+
+  // Show popup
+  popup.show();
 }
 
 export default main;
