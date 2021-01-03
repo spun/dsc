@@ -1,5 +1,12 @@
 import './popup.css';
 
+interface PopupElementData {
+  title: string;
+  subtitle: string;
+  url: string;
+}
+
+
 // Main box
 function createPopupBox() {
   // UI box
@@ -9,7 +16,7 @@ function createPopupBox() {
 }
 
 // Box header
-function createPopupHeader(popup) {
+function createPopupHeader(popup: Popup) {
   // Header
   const header = document.createElement('p');
   header.classList.add('header');
@@ -44,7 +51,7 @@ function createPopupList() {
 }
 
 // Box list item
-function createPopupListItem(titleText, subtitleText, url) {
+function createPopupListItem(titleText: string, subtitleText: string, url: string) {
   // Item
   const listItem = document.createElement('li');
   listItem.classList.add('list-item');
@@ -68,7 +75,13 @@ function createPopupListItem(titleText, subtitleText, url) {
 
 // Popup class
 class Popup {
-  constructor(clickListener) {
+  boxId: string;
+  boxElement: HTMLDivElement
+  headerElement: HTMLParagraphElement
+  listElement: HTMLUListElement
+  clickListener: (data: PopupElementData) => void;
+
+  constructor(clickListener: (data: PopupElementData) => void) {
     this.boxId = 'dsc_popup';
     // Create main box and attach to body
     this.boxElement = createPopupBox();
@@ -84,7 +97,7 @@ class Popup {
   }
 
   // Create and add a new list item to the box list
-  addItemToList(data) {
+  addItemToList(data: PopupElementData) {
     const li = createPopupListItem(data.title, data.subtitle, data.url);
     li.onclick = () => {
       this.clickListener(data);
@@ -106,7 +119,9 @@ class Popup {
     const popupElement = document.getElementById(this.boxId);
     if (popupElement != null) {
       const parent = popupElement.parentElement;
-      parent.removeChild(popupElement);
+      if (parent) {
+        parent.removeChild(popupElement);
+      }
     }
   }
 
@@ -129,4 +144,4 @@ class Popup {
   }
 }
 
-export default Popup;
+export { Popup, PopupElementData };

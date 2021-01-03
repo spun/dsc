@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist/",
-    "noImplicitAny": true,
+    "strict": true,
     "module": "ES2020",
     "lib": [
       "ES6",

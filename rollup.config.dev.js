@@ -1,4 +1,5 @@
 // rollup.config.dev.js
+import typescript from '@rollup/plugin-typescript';
 import postcss from 'rollup-plugin-postcss'
 import del from 'rollup-plugin-delete'
 import serve from 'rollup-plugin-serve'
@@ -10,6 +11,7 @@ export default {
     format: "es"
   }],
   plugins: [
+    typescript(),
     postcss(),
     del({ targets: 'dist/*' }),
     serve({
