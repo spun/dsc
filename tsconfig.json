@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "dist/",
+    "noImplicitAny": true,
+    "module": "ES2020",
+    "lib": [
+      "ES6",
+      "DOM"
+    ],
+    "target": "ES6",
+    "allowJs": true
+  }
+}

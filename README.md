@@ -8,7 +8,7 @@ Install dependencies
 > npm install
 
 Run dev server
-> npm start
+> npm run serve
 
 Build
 > npm run build
