@@ -21,7 +21,7 @@ export default {
     del({ targets: 'public/*' }),
     copy({
       targets: [
-        { src: 'src-web/index.html', dest: 'public' },
+        { src: 'src-web/*', dest: 'public' },
       ],
     }),
   ],
