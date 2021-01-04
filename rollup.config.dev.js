@@ -6,18 +6,18 @@ import del from 'rollup-plugin-delete';
 import serve from 'rollup-plugin-serve';
 
 export default {
-  input: 'src/main.ts',
+  input: 'src-bookmarklet/main.ts',
   output: [{
-    dir: 'dist/',
+    dir: 'public/dist/',
     format: 'es',
   }],
   plugins: [
     eslint(),
     postcss(),
     typescript(),
-    del({ targets: 'dist/*' }),
+    del({ targets: 'public/dist/*' }),
     serve({
-      contentBase: ['dist'],
+      contentBase: ['public/dist'],
       port: 9000,
       // set headers
       headers: {
