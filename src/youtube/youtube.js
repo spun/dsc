@@ -102,16 +102,16 @@ async function getFormats() {
         console.info('Using method 1, "getFormatsUsingYtPlayerPlayerResponse"');
         return getFormatsUsingYtPlayerPlayerResponse(ytplayer.config.args.raw_player_response);
       }
+    }
 
-      // Method 2: If none all the above methods are available, we can make a new
-      // request to the "get_video_info" content. This will get us way more information
-      // about the current video, includirng the available formats that we are trying to get.
-      console.info('Using method 2, "getFormatsUsingGetVideoInfo"');
-      try {
-        return await getFormatsUsingGetVideoInfo(urlVideoId);
-      } catch (e) {
-        throw new Error(`getFormatsUsingGetVideoInfo failed: ${e}`);
-      }
+    // Method 2: If none all the above methods are available, we can make a new
+    // request to the "get_video_info" content. This will get us way more information
+    // about the current video, includirng the available formats that we are trying to get.
+    console.info('Using method 2, "getFormatsUsingGetVideoInfo"');
+    try {
+      return await getFormatsUsingGetVideoInfo(urlVideoId);
+    } catch (e) {
+      throw new Error(`getFormatsUsingGetVideoInfo failed: ${e}`);
     }
   }
   throw new Error();
