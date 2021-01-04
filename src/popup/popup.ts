@@ -6,7 +6,6 @@ interface PopupElementData {
   url: string;
 }
 
-
 // Main box
 function createPopupBox() {
   // UI box
@@ -76,9 +75,13 @@ function createPopupListItem(titleText: string, subtitleText: string, url: strin
 // Popup class
 class Popup {
   boxId: string;
-  boxElement: HTMLDivElement
-  headerElement: HTMLParagraphElement
-  listElement: HTMLUListElement
+
+  boxElement: HTMLDivElement;
+
+  headerElement: HTMLParagraphElement;
+
+  listElement: HTMLUListElement;
+
   clickListener: (data: PopupElementData) => void;
 
   constructor(clickListener: (data: PopupElementData) => void) {

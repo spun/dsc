@@ -9,8 +9,16 @@
     "@typescript-eslint"
   ],
   "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],  
-  "ignorePatterns": ["*.css"]
+    "airbnb-typescript/base"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "ignorePatterns": [
+    "*.css"
+  ],
+  "rules": {
+      "linebreak-style": "off",
+      "no-console": "off"
+  }
 }

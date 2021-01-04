@@ -111,7 +111,7 @@ async function getFormats() {
       console.info('Using method 1, "getFormatsUsingYtPlayerPlayerResponse"');
       return getFormatsUsingYtPlayerPlayerResponse(ytplayer.config.args.raw_player_response);
     }
-    
+
     // Method 2: If none all the above methods are available, we can make a new
     // request to the "get_video_info" content. This will get us way more information
     // about the current video, includirng the available formats that we are trying to get.
@@ -158,7 +158,7 @@ function getAvailableSubtitles(): YtPopupElementData[] {
       subtitle: `Subtitle ${track.languageCode}`,
       url: '',
       extras: {
-        "baseUrl": track.baseUrl,
+        baseUrl: track.baseUrl,
       },
     }));
     return result;
@@ -173,7 +173,7 @@ function getAvailableSubtitles(): YtPopupElementData[] {
 async function downloadSubtitle(subtitleData: YtPopupElementData) {
   // Fetch subtitle content
   if (!subtitleData.extras) return;
-  const baseUrl = subtitleData.extras["baseUrl"];
+  const { baseUrl } = subtitleData.extras;
   const response = await fetch(`${baseUrl}&fmt=json3`);
   const json: TimedText = await response.json();
 
