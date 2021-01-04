@@ -1,4 +1,7 @@
-/* global commonOptions */
+interface CommonOptions {
+  headers: Record<string, string>;
+}
+declare const commonOptions: CommonOptions;
 
 interface AccessTokenResponse {
   readonly sig: string;
@@ -9,7 +12,6 @@ interface AccessTokenResponse {
  * Get assigned client id
  */
 function getClientId() {
-  // @ts-ignore commonOptions can be accessed from within the page
   return commonOptions.headers['Client-ID'];
 }
 
@@ -32,8 +34,8 @@ function isLiveChannelUrl() {
  */
 async function getManifestLiveUrl(channelName: string, clientId: string) {
   const signatureAndTokenUrl = `https://api.twitch.tv/api/channels/${channelName}/access_token?client_id=${clientId}&format=json`;
-  const response = await fetch(signatureAndTokenUrl)
-  const data: AccessTokenResponse = await response.json()
+  const response = await fetch(signatureAndTokenUrl);
+  const data: AccessTokenResponse = await response.json();
   const signature = data.sig;
   const token = encodeURIComponent(data.token);
   return `https://usher.ttvnw.net/api/channel/hls/${channelName}.m3u8?sig=${signature}&token=${token}`;
@@ -58,14 +60,14 @@ function isVideoUrl() {
  */
 async function getManigestVideoUrl(videoId: string, clientId: string) {
   const signatureAndTokenUrl = `https://api.twitch.tv/api/vods/${videoId}/access_token?client_id=${clientId}&format=json`;
-  const response = await fetch(signatureAndTokenUrl)
-  const data: AccessTokenResponse = await response.json()
+  const response = await fetch(signatureAndTokenUrl);
+  const data: AccessTokenResponse = await response.json();
   const signature = data.sig;
   const token = encodeURIComponent(data.token);
-  return `https://usher.ttvnw.net/vod/${videoId}.m3u8?sig=${signature}&token=${token}`
+  return `https://usher.ttvnw.net/vod/${videoId}.m3u8?sig=${signature}&token=${token}`;
 }
 
-async function main() {
+async function main(): Promise<void> {
   // Check if the request is for a live channel
   const channelName = isLiveChannelUrl();
   if (channelName) {

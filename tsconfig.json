@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "dist/",
     "strict": true,
-    "module": "ES2020",
+    "module": "ESNext",
     "lib": [
       "ES6",
       "DOM"

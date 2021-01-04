@@ -1,20 +1,22 @@
 // rollup.config.js
-import typescript from '@rollup/plugin-typescript';
-import postcss from 'rollup-plugin-postcss'
-import del from 'rollup-plugin-delete'
+import eslint from '@rollup/plugin-eslint';
+import typescript from 'rollup-plugin-typescript2';
+import postcss from 'rollup-plugin-postcss';
+import del from 'rollup-plugin-delete';
 import { terser } from 'rollup-plugin-terser';
 
 export default {
   input: 'src/main.ts',
   output: [{
     dir: 'dist/',
-    format: "es",
+    format: 'es',
     sourcemap: true,
-    plugins: [terser()]
+    plugins: [terser()],
   }],
   plugins: [
-    typescript(),
+    eslint(),
     postcss(),
-    del({ targets: 'dist/*' })
-  ]
+    typescript(),
+    del({ targets: 'dist/*' }),
+  ],
 };

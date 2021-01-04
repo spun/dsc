@@ -97,7 +97,7 @@ class Popup {
   }
 
   // Create and add a new list item to the box list
-  addItemToList(data: PopupElementData) {
+  addItemToList(data: PopupElementData): void {
     const li = createPopupListItem(data.title, data.subtitle, data.url);
     li.onclick = () => {
       this.clickListener(data);
@@ -109,13 +109,13 @@ class Popup {
   }
 
   // Add box to DOM
-  show() {
+  show(): void {
     this.hide();
     document.body.appendChild(this.boxElement);
   }
 
   // Remove box from DOM
-  hide() {
+  hide(): void {
     const popupElement = document.getElementById(this.boxId);
     if (popupElement != null) {
       const parent = popupElement.parentElement;
@@ -126,16 +126,16 @@ class Popup {
   }
 
   // Add "minimize" class to show only the box header
-  minimize() {
+  minimize(): void {
     this.boxElement.classList.add('minimize');
   }
 
   // Remove "minimize" class to show all the content of the box
-  restore() {
+  restore(): void {
     this.boxElement.classList.remove('minimize');
   }
 
-  toggle() {
+  toggle(): void {
     if (this.boxElement.classList.contains('minimize')) {
       this.restore();
     } else {

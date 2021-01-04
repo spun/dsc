@@ -49,8 +49,8 @@ const formats: Record<number, YtFormat> = {
 /**
  * Get the format description from an itag
  */
-function getFormatDescription(itag: number) {
-  const format = formats[itag]
+function getFormatDescription(itag: number): string {
+  const format = formats[itag];
   if (format) {
     return `${format.description} (${format.format})`;
   }

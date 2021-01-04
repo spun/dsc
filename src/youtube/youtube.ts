@@ -4,10 +4,10 @@ import { getFormatDescription } from './formats';
 import { milisecondsToSrtTime } from './utils/subtitleTimeUtils';
 // UI popup
 import { Popup, PopupElementData } from '../popup/popup';
-import { YtPlayer, RawPlayerResponse } from './model/YtPlayer'
-import TimedText from './model/TimedText'
+import { YtPlayer, RawPlayerResponse } from './model/YtPlayer';
+import TimedText from './model/TimedText';
 
-declare var ytplayer: YtPlayer;
+declare const ytplayer: YtPlayer;
 
 enum ElementType {
   VIDEO = 'element_type_video',
@@ -16,7 +16,7 @@ enum ElementType {
 
 interface YtPopupElementData extends PopupElementData {
   type?: ElementType;
-  extras?: any;
+  extras?: Record<string, unknown>;
 }
 
 function getVideoIdFromUrl(urlString: string) {
@@ -73,7 +73,7 @@ async function getFormatsUsingGetVideoInfo(videoId: string) {
     // call the function with our data.
     return getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON);
   }
-  return []
+  return [];
 }
 
 /**
@@ -105,15 +105,13 @@ async function getFormats() {
       }
     }
 
-    if (isYtPlayerDataAvailable === true) {
-      // Method 1: Using the property "player_response" from the "ytplayer"
-      // variable that we can use when we are in a video webpage.
-      if (ytplayer?.config?.args?.raw_player_response) {
-        console.info('Using method 1, "getFormatsUsingYtPlayerPlayerResponse"');
-        return getFormatsUsingYtPlayerPlayerResponse(ytplayer.config.args.raw_player_response);
-      }
+    // Method 1: Using the property "player_response" from the "ytplayer"
+    // variable that we can use when we are in a video webpage.
+    if (isYtPlayerDataAvailable === true && ytplayer?.config?.args?.raw_player_response) {
+      console.info('Using method 1, "getFormatsUsingYtPlayerPlayerResponse"');
+      return getFormatsUsingYtPlayerPlayerResponse(ytplayer.config.args.raw_player_response);
     }
-
+    
     // Method 2: If none all the above methods are available, we can make a new
     // request to the "get_video_info" content. This will get us way more information
     // about the current video, includirng the available formats that we are trying to get.
@@ -160,7 +158,7 @@ function getAvailableSubtitles(): YtPopupElementData[] {
       subtitle: `Subtitle ${track.languageCode}`,
       url: '',
       extras: {
-        baseUrl: track.baseUrl,
+        "baseUrl": track.baseUrl,
       },
     }));
     return result;
@@ -174,7 +172,8 @@ function getAvailableSubtitles(): YtPopupElementData[] {
  */
 async function downloadSubtitle(subtitleData: YtPopupElementData) {
   // Fetch subtitle content
-  const { baseUrl } = subtitleData.extras;
+  if (!subtitleData.extras) return;
+  const baseUrl = subtitleData.extras["baseUrl"];
   const response = await fetch(`${baseUrl}&fmt=json3`);
   const json: TimedText = await response.json();
 
@@ -205,10 +204,10 @@ async function downloadSubtitle(subtitleData: YtPopupElementData) {
   document.body.removeChild(elem);
 }
 
-async function main() {
+async function main(): Promise<void> {
   // Popup
   const popup = new Popup(async (receivedData) => {
-    const data = receivedData as YtPopupElementData
+    const data = receivedData as YtPopupElementData;
     // Check what type of available downloads was selected
     switch (data.type) {
       case ElementType.VIDEO:
@@ -228,7 +227,7 @@ async function main() {
   try {
     const formatResults = await getFormats();
     formatResults.forEach((videoData) => {
-      const item: YtPopupElementData = { ...videoData, type: ElementType.VIDEO }
+      const item: YtPopupElementData = { ...videoData, type: ElementType.VIDEO };
       popup.addItemToList(item);
     });
     popup.show();
@@ -240,7 +239,7 @@ async function main() {
   const availableSubtitles = getAvailableSubtitles();
   // Add all available subtitle to the list
   availableSubtitles.forEach((subtitleData) => {
-    const item: YtPopupElementData = { ...subtitleData, type: ElementType.SUBTITLE }
+    const item: YtPopupElementData = { ...subtitleData, type: ElementType.SUBTITLE };
     popup.addItemToList(item);
   });
 

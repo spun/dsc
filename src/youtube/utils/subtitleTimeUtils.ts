@@ -17,14 +17,14 @@ export function milisecondsToTimeStamp(milisecondsInput: number): TimeStamp {
     hours: h,
     minutes: m,
     seconds: s,
-    miliseconds: ms
+    miliseconds: ms,
   };
 }
 
 /**
  * Converts a TimeStamp to a SRT file time format
  */
-export function timeStampToSrtTime(timeStamp: TimeStamp) {
+export function timeStampToSrtTime(timeStamp: TimeStamp): string {
   const hours = timeStamp.hours.toString().padStart(2, '0');
   const minutes = timeStamp.minutes.toString().padStart(2, '0');
   const seconds = timeStamp.seconds.toString().padStart(2, '0');
@@ -35,7 +35,7 @@ export function timeStampToSrtTime(timeStamp: TimeStamp) {
 /**
  * Converts a milisecconds time number to a SRT file time format
  */
-export function milisecondsToSrtTime(miliseconds: number) {
+export function milisecondsToSrtTime(miliseconds: number): string {
   const timeStamp = milisecondsToTimeStamp(miliseconds);
   return timeStampToSrtTime(timeStamp);
 }
