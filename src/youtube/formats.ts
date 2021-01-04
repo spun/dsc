@@ -1,4 +1,10 @@
-const formats = {
+interface YtFormat {
+  description: string;
+  format: string;
+  extension: string;
+}
+
+const formats: Record<number, YtFormat> = {
   5: { description: 'LQ FLV', format: 'FLV', extension: 'flv' },
   6: { description: 'LQ FLV', format: 'FLV', extension: 'flv' },
   13: { description: 'LQ 3GP', format: '3GP', extension: '3gp' },
@@ -40,14 +46,15 @@ const formats = {
   299: { description: '*Full HD 1080 (60fps)', format: 'MP4', extension: 'mp4' },
 };
 
-function getFormatDescription(itag) {
-  let description = '';
-  if (formats[itag]) {
-    description = `${formats[itag].description} (${formats[itag].format})`;
-  } else {
-    description = `Unknown (${itag})`;
+/**
+ * Get the format description from an itag
+ */
+function getFormatDescription(itag: number): string {
+  const format = formats[itag];
+  if (format) {
+    return `${format.description} (${format.format})`;
   }
-  return description;
+  return `Unknown (${itag})`;
 }
 
 export { formats, getFormatDescription };

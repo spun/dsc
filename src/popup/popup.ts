@@ -1,5 +1,11 @@
 import './popup.css';
 
+interface PopupElementData {
+  title: string;
+  subtitle: string;
+  url: string;
+}
+
 // Main box
 function createPopupBox() {
   // UI box
@@ -9,7 +15,7 @@ function createPopupBox() {
 }
 
 // Box header
-function createPopupHeader(popup) {
+function createPopupHeader(popup: Popup) {
   // Header
   const header = document.createElement('p');
   header.classList.add('header');
@@ -44,7 +50,7 @@ function createPopupList() {
 }
 
 // Box list item
-function createPopupListItem(titleText, subtitleText, url) {
+function createPopupListItem(titleText: string, subtitleText: string, url: string) {
   // Item
   const listItem = document.createElement('li');
   listItem.classList.add('list-item');
@@ -68,7 +74,17 @@ function createPopupListItem(titleText, subtitleText, url) {
 
 // Popup class
 class Popup {
-  constructor(clickListener) {
+  boxId: string;
+
+  boxElement: HTMLDivElement;
+
+  headerElement: HTMLParagraphElement;
+
+  listElement: HTMLUListElement;
+
+  clickListener: (data: PopupElementData) => void;
+
+  constructor(clickListener: (data: PopupElementData) => void) {
     this.boxId = 'dsc_popup';
     // Create main box and attach to body
     this.boxElement = createPopupBox();
@@ -84,7 +100,7 @@ class Popup {
   }
 
   // Create and add a new list item to the box list
-  addItemToList(data) {
+  addItemToList(data: PopupElementData): void {
     const li = createPopupListItem(data.title, data.subtitle, data.url);
     li.onclick = () => {
       this.clickListener(data);
@@ -96,31 +112,33 @@ class Popup {
   }
 
   // Add box to DOM
-  show() {
+  show(): void {
     this.hide();
     document.body.appendChild(this.boxElement);
   }
 
   // Remove box from DOM
-  hide() {
+  hide(): void {
     const popupElement = document.getElementById(this.boxId);
     if (popupElement != null) {
       const parent = popupElement.parentElement;
-      parent.removeChild(popupElement);
+      if (parent) {
+        parent.removeChild(popupElement);
+      }
     }
   }
 
   // Add "minimize" class to show only the box header
-  minimize() {
+  minimize(): void {
     this.boxElement.classList.add('minimize');
   }
 
   // Remove "minimize" class to show all the content of the box
-  restore() {
+  restore(): void {
     this.boxElement.classList.remove('minimize');
   }
 
-  toggle() {
+  toggle(): void {
     if (this.boxElement.classList.contains('minimize')) {
       this.restore();
     } else {
@@ -129,4 +147,4 @@ class Popup {
   }
 }
 
-export default Popup;
+export { Popup, PopupElementData };

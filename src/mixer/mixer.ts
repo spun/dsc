@@ -8,24 +8,20 @@ function getManifestUrl() {
 }
 
 // Create and trigger file dowload (https://stackoverflow.com/a/33542499)
-function downloadAsFile(filename, text) {
+function downloadAsFile(filename: string, text: string) {
   const blob = new Blob([text], { type: 'text/plain' });
-  if (window.navigator.msSaveOrOpenBlob) {
-    window.navigator.msSaveBlob(blob, filename);
-  } else {
-    const elem = window.document.createElement('a');
-    elem.href = window.URL.createObjectURL(blob);
-    elem.download = filename;
-    // Add to dom
-    document.body.appendChild(elem);
-    // trigger click event
-    elem.click();
-    // remove from dom
-    document.body.removeChild(elem);
-  }
+  const elem = window.document.createElement('a');
+  elem.href = window.URL.createObjectURL(blob);
+  elem.download = filename;
+  // Add to dom
+  document.body.appendChild(elem);
+  // trigger click event
+  elem.click();
+  // remove from dom
+  document.body.removeChild(elem);
 }
 
-function getManifestText(manifestUrl) {
+function getManifestText(manifestUrl: string) {
   const baseUrl = manifestUrl.split('manifest.m3u8')[0];
 
   fetch(manifestUrl)
@@ -39,7 +35,7 @@ function getManifestText(manifestUrl) {
     });
 }
 
-export default () => {
+export default (): void => {
   const manifestUrl = getManifestUrl();
   getManifestText(manifestUrl);
 };
