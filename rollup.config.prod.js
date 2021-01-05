@@ -4,11 +4,12 @@ import typescript from 'rollup-plugin-typescript2';
 import postcss from 'rollup-plugin-postcss';
 import del from 'rollup-plugin-delete';
 import { terser } from 'rollup-plugin-terser';
+import copy from 'rollup-plugin-copy';
 
 export default {
-  input: 'src/main.ts',
+  input: 'src-bookmarklet/main.ts',
   output: [{
-    dir: 'dist/',
+    dir: 'public/dist/',
     format: 'es',
     sourcemap: true,
     plugins: [terser()],
@@ -17,6 +18,11 @@ export default {
     eslint(),
     postcss(),
     typescript(),
-    del({ targets: 'dist/*' }),
+    del({ targets: 'public/*' }),
+    copy({
+      targets: [
+        { src: 'src-web/*', dest: 'public' },
+      ],
+    }),
   ],
 };
