@@ -1,11 +1,11 @@
-name: build
+name: build and deploy
 
 on:
-  pull_request:
+  push:
     branches: [ master ]
 
 jobs:
-  build:
+  build-and-deploy:
 
     runs-on: ubuntu-latest
 
@@ -23,3 +23,9 @@ jobs:
         npm ci
         npm run build --if-present
     # - run: npm test
+
+    - name: Deploy 🚀
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./public

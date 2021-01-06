@@ -1,5 +1,7 @@
 # download-script-collection
 
+![build](https://github.com/spun/dsc/workflows/build/badge.svg)
+
 [http://spun.github.com/dsc/](http://spun.github.com/dsc/)
 
 ## Project structure
