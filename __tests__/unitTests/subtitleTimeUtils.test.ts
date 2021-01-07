@@ -1,4 +1,4 @@
-import { millisecondsToSrtTime } from '../src-bookmarklet/youtube/utils/subtitleTimeUtils';
+import { millisecondsToSrtTime } from '../../src-bookmarklet/youtube/utils/subtitleTimeUtils';
 
 describe('millisecondsToSrtTime', () => {
   test('zero milliseconds has the correct output', () => {
