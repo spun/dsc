@@ -2,22 +2,22 @@ interface TimeStamp {
   hours: number
   minutes: number
   seconds: number
-  miliseconds: number
+  milliseconds: number
 }
 
 /**
  * Converts a milisecconds time number value to a TimeStamp object
  */
-export function milisecondsToTimeStamp(milisecondsInput: number): TimeStamp {
-  const ms = milisecondsInput % 1000;
-  const s = Math.floor(milisecondsInput / 1000) % 60;
-  const m = Math.floor(milisecondsInput / (1000 * 60)) % 60;
-  const h = Math.floor(milisecondsInput / (1000 * 60 * 60));
+export function millisecondsToTimeStamp(millisecondsInput: number): TimeStamp {
+  const ms = millisecondsInput % 1000;
+  const s = Math.floor(millisecondsInput / 1000) % 60;
+  const m = Math.floor(millisecondsInput / 60000) % 60;
+  const h = Math.floor(millisecondsInput / 3600000);
   return {
     hours: h,
     minutes: m,
     seconds: s,
-    miliseconds: ms,
+    milliseconds: ms,
   };
 }
 
@@ -28,14 +28,15 @@ export function timeStampToSrtTime(timeStamp: TimeStamp): string {
   const hours = timeStamp.hours.toString().padStart(2, '0');
   const minutes = timeStamp.minutes.toString().padStart(2, '0');
   const seconds = timeStamp.seconds.toString().padStart(2, '0');
-  const miliseconds = timeStamp.miliseconds.toString().padStart(3, '0');
-  return `${hours}:${minutes}:${seconds},${miliseconds}`;
+  const milliseconds = timeStamp.milliseconds.toString().padStart(3, '0');
+  return `${hours}:${minutes}:${seconds},${milliseconds}`;
 }
 
 /**
  * Converts a milisecconds time number to a SRT file time format
  */
-export function milisecondsToSrtTime(miliseconds: number): string {
-  const timeStamp = milisecondsToTimeStamp(miliseconds);
+export function millisecondsToSrtTime(milliseconds: number): string {
+  const msValue = (milliseconds >= 0) ? milliseconds : 0;
+  const timeStamp = millisecondsToTimeStamp(msValue);
   return timeStampToSrtTime(timeStamp);
 }
