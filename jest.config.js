@@ -1,4 +1,3 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
+  preset: './config/jest/ts_and_puppeteer_preset.js',
 };

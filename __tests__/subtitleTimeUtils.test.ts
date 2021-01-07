@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { millisecondsToSrtTime } from '../src-bookmarklet/youtube/utils/subtitleTimeUtils';
 
 describe('millisecondsToSrtTime', () => {
