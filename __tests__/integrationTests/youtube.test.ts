@@ -1,16 +1,16 @@
-const tests = [
+const youtubeTestInput = [
   {
     name: 'New in Chrome 87',
     url: 'https://www.youtube.com/watch?v=NCKMMzVn1c8',
   },
 ];
 
-const testUtil = (name: string, url: string) => {
+const youtubeTests = (name: string, url: string) => {
   describe(name, () => {
     beforeAll(async () => {
       await page.goto(url);
       await page.addScriptTag({ url: 'http://localhost:8080/dist/main.js' });
-    });
+    }, 10000);
 
     it('should show the popup window"', async () => {
       const popupElement = await page.waitForXPath('//*[@id="dsc_popup"]', { visible: true, timeout: 5000 });
@@ -25,7 +25,7 @@ const testUtil = (name: string, url: string) => {
 };
 
 describe('Youtube', () => {
-  tests.forEach((it) => {
-    testUtil(it.name, it.url);
+  youtubeTestInput.forEach((it) => {
+    youtubeTests(it.name, it.url);
   });
 });
