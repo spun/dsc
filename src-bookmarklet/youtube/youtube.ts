@@ -1,7 +1,7 @@
 // Video format dictionary
 import { getFormatDescription } from './formats';
 // Subtitle time formats util
-import { milisecondsToSrtTime } from './utils/subtitleTimeUtils';
+import { millisecondsToSrtTime } from './utils/subtitleTimeUtils';
 // UI popup
 import { Popup, PopupElementData } from '../popup/popup';
 import { YtPlayer, RawPlayerResponse } from './model/YtPlayer';
@@ -183,7 +183,7 @@ async function downloadSubtitle(subtitleData: YtPopupElementData) {
   json.events.forEach((line) => {
     if (line.tStartMs && line.dDurationMs && line.segs) {
       result += (`${subtitleIndex}\r\n`);
-      result += `${milisecondsToSrtTime(line.tStartMs)} --> ${milisecondsToSrtTime(line.tStartMs + line.dDurationMs)}\r\n`;
+      result += `${millisecondsToSrtTime(line.tStartMs)} --> ${millisecondsToSrtTime(line.tStartMs + line.dDurationMs)}\r\n`;
       line.segs.forEach((segment) => { result += (`${segment.utf8}\r\n`); });
       result += ('\r\n');
       subtitleIndex += 1;
