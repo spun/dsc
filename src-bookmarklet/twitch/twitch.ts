@@ -59,12 +59,34 @@ function isVideoUrl() {
  * Get the manifest (m3u8 file) of a live channel
  */
 async function getManigestVideoUrl(videoId: string, clientId: string) {
-  const signatureAndTokenUrl = `https://api.twitch.tv/api/vods/${videoId}/access_token?client_id=${clientId}&format=json`;
-  const response = await fetch(signatureAndTokenUrl);
-  const data: AccessTokenResponse = await response.json();
-  const signature = data.sig;
-  const token = encodeURIComponent(data.token);
-  return `https://usher.ttvnw.net/vod/${videoId}.m3u8?sig=${signature}&token=${token}`;
+  // Form a gql petition
+  const gqlUrl = 'https://gql.twitch.tv/gql';
+  const requestData = {
+    operationName: 'PlaybackAccessToken_Template',
+    query: 'query PlaybackAccessToken_Template($login: String!, $isLive: Boolean!, $vodID: ID!, $isVod: Boolean!, $playerType: String!) {  streamPlaybackAccessToken(channelName: $login, params: {platform: "web", playerBackend: "mediaplayer", playerType: $playerType}) @include(if: $isLive) {    value    signature    __typename  }  videoPlaybackAccessToken(id: $vodID, params: {platform: "web", playerBackend: "mediaplayer", playerType: $playerType}) @include(if: $isVod) {    value    signature    __typename  }}',
+    variables: {
+      isLive: false,
+      login: '',
+      isVod: true,
+      vodID: videoId,
+      playerType: 'site',
+    },
+  };
+  // Send request
+  const response = await fetch(gqlUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain; charset=UTF-8',
+      'Client-ID': clientId,
+    },
+    body: JSON.stringify(requestData),
+  });
+  // Extract required values
+  const responseJson = await response.json();
+  const { value: token, signature } = responseJson.data.videoPlaybackAccessToken;
+  // Form url
+  const encodedToken = encodeURIComponent(token);
+  return `https://usher.ttvnw.net/vod/${videoId}.m3u8?sig=${signature}&token=${encodedToken}`;
 }
 
 async function main(): Promise<void> {
