@@ -1,12 +1,9 @@
+import { getLiveAccessToken, getVideoAccessToken } from './utils/accessUtils';
+
 interface CommonOptions {
   headers: Record<string, string>;
 }
 declare const commonOptions: CommonOptions;
-
-interface AccessTokenResponse {
-  readonly sig: string;
-  readonly token: string;
-}
 
 /**
  * Get assigned client id
@@ -33,12 +30,11 @@ function isLiveChannelUrl() {
  * Get the manifest (m3u8 file) of a live channel
  */
 async function getManifestLiveUrl(channelName: string, clientId: string) {
-  const signatureAndTokenUrl = `https://api.twitch.tv/api/channels/${channelName}/access_token?client_id=${clientId}&format=json`;
-  const response = await fetch(signatureAndTokenUrl);
-  const data: AccessTokenResponse = await response.json();
-  const signature = data.sig;
-  const token = encodeURIComponent(data.token);
-  return `https://usher.ttvnw.net/api/channel/hls/${channelName}.m3u8?sig=${signature}&token=${token}`;
+  const accessToken = await getLiveAccessToken(clientId, channelName);
+  // Form url
+  const { signature } = accessToken;
+  const encodedToken = encodeURIComponent(accessToken.token);
+  return `https://usher.ttvnw.net/api/channel/hls/${channelName}.m3u8?sig=${signature}&token=${encodedToken}`;
 }
 
 /**
@@ -59,12 +55,11 @@ function isVideoUrl() {
  * Get the manifest (m3u8 file) of a live channel
  */
 async function getManigestVideoUrl(videoId: string, clientId: string) {
-  const signatureAndTokenUrl = `https://api.twitch.tv/api/vods/${videoId}/access_token?client_id=${clientId}&format=json`;
-  const response = await fetch(signatureAndTokenUrl);
-  const data: AccessTokenResponse = await response.json();
-  const signature = data.sig;
-  const token = encodeURIComponent(data.token);
-  return `https://usher.ttvnw.net/vod/${videoId}.m3u8?sig=${signature}&token=${token}`;
+  const accessToken = await getVideoAccessToken(clientId, videoId);
+  // Form url
+  const { signature } = accessToken;
+  const encodedToken = encodeURIComponent(accessToken.token);
+  return `https://usher.ttvnw.net/vod/${videoId}.m3u8?sig=${signature}&token=${encodedToken}`;
 }
 
 async function main(): Promise<void> {
