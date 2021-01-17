@@ -53,10 +53,10 @@ We can run just the tests from this folder with:
 
 These tests will run the bookmarklet final code. The tests make use of [puppeteer](https://pptr.dev/) to open a page in a browser and insert the bookmark script.
 
-To make the bookmarklet final script available to puppeteer, a temporary server will be started. The server will shut down after the tests are done.
+To make the bookmarklet final script available to puppeteer, a temporary server (`utils/tests_server.js`) will be started. The server will shut down after the tests are done.
 In order to serve the correct files, a `build` needs to be done before running the integration tests (our ci GitHub workflows always run `build` before `test`).
 
-Currently, these test make real connections to the supported pages. Because of that, test results could be flaky (page down, timeout, etc.), but it will give us the best representation of an user running the bookmarklet.
+Currently, these tests make real connections to the supported pages. Because of that, test results could be flaky (page down, timeout, etc.), but it will give us the best representation of an user running the bookmarklet.
 
 We can run just the tests from this folder with:
 

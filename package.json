@@ -8,7 +8,7 @@
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest __tests__/unitTests -c jest-unit.config.js --verbose",
     "test:integration": "server-test _runHttp-server 8080 _runJestIntegration",
-    "_runHttp-server": "node server.js",
+    "_runHttp-server": "node ./utils/tests_server.js",
     "_runJestIntegration": "jest __tests__/integrationTests -c jest-integration.config.js --verbose"
   },
   "author": "",

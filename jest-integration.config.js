@@ -4,5 +4,5 @@
 // We haven't done any testing to check if this has any positive impact
 // on performance.
 module.exports = {
-  preset: './config/jest/ts_and_puppeteer_preset.js',
+  preset: './utils/ts_and_puppeteer_preset.js',
 };
