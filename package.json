@@ -8,7 +8,7 @@
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest __tests__/unitTests -c jest-unit.config.js --verbose",
     "test:integration": "server-test _runHttp-server 8080 _runJestIntegration",
-    "_runHttp-server": "http-server -p 8080 -c-1 --cors --silent",
+    "_runHttp-server": "node ./utils/tests_server.js",
     "_runJestIntegration": "jest __tests__/integrationTests -c jest-integration.config.js --verbose"
   },
   "author": "",
@@ -25,7 +25,6 @@
     "eslint": "^7.17.0",
     "eslint-config-airbnb-typescript": "^12.0.0",
     "eslint-plugin-import": "^2.22.1",
-    "http-server": "^0.12.3",
     "jest": "^26.6.3",
     "jest-puppeteer": "^4.4.0",
     "postcss": "^8.2.4",
