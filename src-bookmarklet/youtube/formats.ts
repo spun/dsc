@@ -1,17 +1,22 @@
-interface YtFormat {
+interface YtDlFormat {
   ext?: string;
   width?: number;
   height?: number;
-  abr?: number,
+  abr?: number;
   acodec?: string;
   vcodec?: string;
   format_note?: string;
   preference?: number;
   container?: string;
-  fps?: number
+  fps?: number;
 }
 
-const formats: Record<number, YtFormat> = {
+interface YtItagInfo {
+  text: string;
+  subtext: string;
+}
+
+const formats: Record<number, YtDlFormat> = {
   5: {
     ext: 'flv', width: 400, height: 240, acodec: 'mp3', abr: 64, vcodec: 'h263',
   },
@@ -249,7 +254,7 @@ const formats: Record<number, YtFormat> = {
   397: { acodec: 'none', vcodec: 'av01.0.05M.08' },
 };
 
-function printResolution(format: YtFormat): string {
+function printResolution(format: YtDlFormat): string {
   if (format.width && format.height) {
     return `${format.width} x ${format.height}`;
   }
@@ -262,12 +267,26 @@ function printResolution(format: YtFormat): string {
 /**
  * Get the format description from an itag
  */
-function getFormatDescription(itag: number): string {
+function getYtItagInfo(itag: number): YtItagInfo {
+  let text = 'Unknown';
+  let subtext = '';
+
   const format = formats[itag];
   if (format) {
-    return `${printResolution(format)} (${format.format_note || format.ext}) [${itag}]`;
+    // Text
+    text = `${printResolution(format)} (${format.ext})`;
+    if (format.format_note) { text += ` - ${format.format_note}`; }
+    // Subtext
+    const subtextElements = [];
+    if (format.vcodec) { subtextElements.push(`video: ${format.vcodec}`); }
+    if (format.acodec) { subtextElements.push(`audio: ${format.acodec}`); }
+    if (subtextElements.length > 0) {
+      subtext = subtextElements.join(' + ');
+    } else {
+      subtext = `itag: ${itag}`;
+    }
   }
-  return `Unknown (${itag})`;
+  return { text, subtext };
 }
 
-export { formats, getFormatDescription };
+export { formats, getYtItagInfo };

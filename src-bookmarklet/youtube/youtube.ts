@@ -1,5 +1,5 @@
 // Video format dictionary
-import { getFormatDescription } from './formats';
+import { getYtItagInfo } from './formats';
 // Subtitle time formats util
 import { millisecondsToSrtTime } from './utils/subtitleTimeUtils';
 // UI popup
@@ -42,10 +42,11 @@ function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON: RawPlayerResp
 
   const result: YtPopupElementData[] = [];
   allFormats.forEach((item) => {
+    const itagInfo = getYtItagInfo(item.itag);
     // Add to results
     result.push({
-      title: getFormatDescription(item.itag),
-      subtitle: item.size || item.quality || '',
+      title: itagInfo.text,
+      subtitle: itagInfo.subtext || item.size || item.quality || '',
       url: `${item.url}&title=${videoTitle}`,
     });
   });
