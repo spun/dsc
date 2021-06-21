@@ -14,6 +14,13 @@ const youtubeStandardTests = (name: string, url: string) => {
   describe(name, () => {
     beforeAll(async () => {
       await page.goto(url);
+      // Cookie consent
+      if (page.url().includes('consent.youtube.com')) {
+        await Promise.all([
+          page.waitForNavigation(),
+          page.click('button'),
+        ]);
+      }
       await page.addScriptTag({ url: 'http://localhost:8080/dist/main.js' });
     }, 10000);
 
@@ -56,7 +63,14 @@ const youtubeSPATests = (name: string, searchUrl: string) => {
   describe(name, () => {
     beforeAll(async () => {
       await page.goto(searchUrl);
-      // Wait for navigation
+      // Cookie consent
+      if (page.url().includes('consent.youtube.com')) {
+        await Promise.all([
+          page.waitForNavigation(),
+          page.click('button'),
+        ]);
+      }
+      // First search result
       await Promise.all([
         page.waitForNavigation(),
         // Click on first result
