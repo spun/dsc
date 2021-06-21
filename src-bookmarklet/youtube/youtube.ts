@@ -55,7 +55,7 @@ function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON: RawPlayerResp
 
 // Method 2: Extract using "get_video_info" content
 async function getFormatsUsingGetVideoInfo(videoId: string) {
-  const response = await fetch(`/get_video_info?video_id=${videoId}&ps=default&eurl=&gl=US&hl=en&disable_polymer=true`);
+  const response = await fetch(`/get_video_info?video_id=${videoId}&ps=default&eurl=&gl=US&hl=en&disable_polymer=true&html5=1&c=TVHTML5&cver=6.20180913`);
   const body = await response.text();
   // Extract all pair values from the response
   const pairValues = decodeURIComponent(body).split('&');
