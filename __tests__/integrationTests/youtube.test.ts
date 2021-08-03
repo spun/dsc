@@ -13,14 +13,37 @@ const youtubeStandardTestInput = [{
 const youtubeStandardTests = (name: string, url: string) => {
   describe(name, () => {
     beforeAll(async () => {
-      await page.goto(url);
+      await page.goto(url, { waitUntil: 'networkidle0' });
+
       // Cookie consent
+      // Mode 1, cookie consent redirection. The user is redirected to a new url with the
+      // cookie consent dialog. After accepting, the user is redirected back to the video.
       if (page.url().includes('consent.youtube.com')) {
+        // Click accept and wait for redirection
         await Promise.all([
           page.waitForNavigation(),
           page.click('form button'),
         ]);
+      } else {
+        // Mode 2, embedded cookie consent. A full screen dialog is shown to the user.
+        // After accepting, the dialog is hidden and the video is played.
+        const isCookieConsentDialogShown = await page.evaluate(() => {
+          // Get the dialog element
+          const cookieDialog = document.querySelectorAll('ytd-consent-bump-v2-lightbox#lightbox tp-yt-paper-dialog');
+          // Check if the dialog exists and its visibility
+          if (cookieDialog.length === 1 && (cookieDialog[0] as HTMLElement).style.display === '') {
+            // Cookie consent is shown and we should click the accept button
+            return true;
+          }
+          return false;
+        });
+        if (isCookieConsentDialogShown) {
+          // Click accept
+          await page.click('ytd-consent-bump-v2-lightbox#lightbox #content ytd-button-renderer:nth-child(2) #button');
+        }
       }
+
+      // Inject bookmarklet
       await page.addScriptTag({ url: 'http://localhost:8080/dist/main.js' });
     }, 10000);
 
@@ -62,14 +85,36 @@ const youtubeSPATestInput = [{
 const youtubeSPATests = (name: string, searchUrl: string) => {
   describe(name, () => {
     beforeAll(async () => {
-      await page.goto(searchUrl);
+      await page.goto(searchUrl, { waitUntil: 'networkidle0' });
+
       // Cookie consent
+      // Mode 1, cookie consent redirection. The user is redirected to a new url with the
+      // cookie consent dialog. After accepting, the user is redirected back to the video.
       if (page.url().includes('consent.youtube.com')) {
+        // Click accept and wait for redirection
         await Promise.all([
           page.waitForNavigation(),
           page.click('form button'),
         ]);
+      } else {
+        // Mode 2, embedded cookie consent. A full screen dialog is shown to the user.
+        // After accepting, the dialog is hidden and the video is played.
+        const isCookieConsentDialogShown = await page.evaluate(() => {
+          // Get the dialog element
+          const cookieDialog = document.querySelectorAll('ytd-consent-bump-v2-lightbox#lightbox tp-yt-paper-dialog');
+          // Check if the dialog exists and its visibility
+          if (cookieDialog.length === 1 && (cookieDialog[0] as HTMLElement).style.display === '') {
+            // Cookie consent is shown and we should click the accept button
+            return true;
+          }
+          return false;
+        });
+        if (isCookieConsentDialogShown) {
+          // Click accept
+          await page.click('ytd-consent-bump-v2-lightbox#lightbox #content ytd-button-renderer:nth-child(2) #button');
+        }
       }
+
       // First search result
       await Promise.all([
         page.waitForNavigation(),
