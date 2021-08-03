@@ -18,7 +18,7 @@ const youtubeStandardTests = (name: string, url: string) => {
       if (page.url().includes('consent.youtube.com')) {
         await Promise.all([
           page.waitForNavigation(),
-          page.click('button'),
+          page.click('form button'),
         ]);
       }
       await page.addScriptTag({ url: 'http://localhost:8080/dist/main.js' });
@@ -67,7 +67,7 @@ const youtubeSPATests = (name: string, searchUrl: string) => {
       if (page.url().includes('consent.youtube.com')) {
         await Promise.all([
           page.waitForNavigation(),
-          page.click('button'),
+          page.click('form button'),
         ]);
       }
       // First search result
