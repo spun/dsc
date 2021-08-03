@@ -2,7 +2,7 @@
 
 [![build](https://github.com/spun/dsc/workflows/build/badge.svg)](https://github.com/spun/dsc/actions?query=workflow%3Abuild)
 
-[https://spun.github.com/dsc/](https://spun.github.com/dsc/)
+[https://spun.github.io/dsc/](https://spun.github.io/dsc/)
 
 ## Project structure
 
@@ -34,7 +34,7 @@ Generate the final bookmarklet scripts and merge them with the content from `src
 ### Run dev server
 
 Generate and serve the bookmarklet code.
-> npm run serve
+> npm run dev
 
 ### Test
 
