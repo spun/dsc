@@ -5,9 +5,11 @@ import { millisecondsToSrtTime } from './utils/subtitleTimeUtils';
 // UI popup
 import { Popup, PopupElementData } from '../popup/popup';
 import { YtPlayer, RawPlayerResponse } from './model/YtPlayer';
+import { YtCfg } from './model/YtCfg';
 import TimedText from './model/TimedText';
 
 declare const ytplayer: YtPlayer;
+declare const ytcfg: YtCfg;
 
 enum ElementType {
   VIDEO = 'element_type_video',
@@ -28,7 +30,7 @@ function getVideoIdFromUrl(urlString: string) {
   return '';
 }
 
-// Method 1: Extract using the property "player_response" from the "ytplayer"
+// Extract available formats from the player response
 function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON: RawPlayerResponse) {
   const {
     formats: baseFormats, // Base formats (Video + Audio)
@@ -53,28 +55,40 @@ function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON: RawPlayerResp
   return result;
 }
 
-// Method 2: Extract using "get_video_info" content
-async function getFormatsUsingGetVideoInfo(videoId: string) {
-  const response = await fetch(`/get_video_info?video_id=${videoId}&ps=default&eurl=&gl=US&hl=en&disable_polymer=true&html5=1&c=TVHTML5&cver=6.20180913`);
-  const body = await response.text();
-  // Extract all pair values from the response
-  const pairValues = decodeURIComponent(body).split('&');
-  // Retreive the value with the key "player_response"
-  const playerResponseRaw = pairValues.find((value) => value.split('=')[0] === 'player_response');
-  if (playerResponseRaw) {
-    // From that key-value pair, we only are interested in the value
-    const playerResponseSplit = playerResponseRaw.split('=');
-    playerResponseSplit.shift(); // Ignore key
-    const playerResponseString = playerResponseSplit.join('=');
-    // We may need to replace some simbols
-    // const sanitazed = value.replace('\u0026', '&amp;');
-    const playerResponseJSON = JSON.parse(playerResponseString);
-    // At this point, we have all the info in a strcuture really similar
-    // to the one used by "getFormatsUsingYtPlayerPlayerResponse", so we
-    // call the function with our data.
-    return getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON);
-  }
-  return [];
+// Method 2: Extract player_response using an api request
+async function getPlayerResponseFromApi(videoId: string) {
+  // Extract api values from window
+  const {
+    INNERTUBE_API_KEY,
+    INNERTUBE_CONTEXT_CLIENT_VERSION,
+    INNERTUBE_CONTEXT_HL,
+    INNERTUBE_CONTEXT_CLIENT_NAME,
+  // eslint-disable-next-line no-underscore-dangle
+  } = ytcfg.data_;
+
+  // Create body for the api request
+  const data = {
+    context: {
+      client: {
+        hl: INNERTUBE_CONTEXT_HL,
+        clientName: INNERTUBE_CONTEXT_CLIENT_NAME,
+        clientVersion: INNERTUBE_CONTEXT_CLIENT_VERSION,
+        mainAppWebInfo: { graftUrl: `/watch?v=${videoId}` },
+      },
+    },
+    videoId,
+  };
+
+  // Api url
+  const url = `https://youtubei.googleapis.com/youtubei/v1/player?key=${INNERTUBE_API_KEY}`;
+
+  // Api post fetch request
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return response.json();
 }
 
 /**
@@ -110,17 +124,18 @@ async function getFormats() {
     // variable that we can use when we are in a video webpage.
     if (isYtPlayerDataAvailable === true && ytplayer?.config?.args?.raw_player_response) {
       console.info('Using method 1, "getFormatsUsingYtPlayerPlayerResponse"');
-      return getFormatsUsingYtPlayerPlayerResponse(ytplayer.config.args.raw_player_response);
+      const playerResponse = ytplayer.config.args.raw_player_response;
+      return getFormatsUsingYtPlayerPlayerResponse(playerResponse);
     }
 
-    // Method 2: If none all the above methods are available, we can make a new
-    // request to the "get_video_info" content. This will get us way more information
-    // about the current video, includirng the available formats that we are trying to get.
-    console.info('Using method 2, "getFormatsUsingGetVideoInfo"');
+    // Method 2: If the player_response method was not available, we can make a new api request.
+    // This will get us the same information.
+    console.info('Using method 2, "getPlayerResponseFromApi"');
     try {
-      return await getFormatsUsingGetVideoInfo(urlVideoId);
+      const playerResponse : RawPlayerResponse = await getPlayerResponseFromApi(urlVideoId);
+      return getFormatsUsingYtPlayerPlayerResponse(playerResponse);
     } catch (e) {
-      throw new Error(`getFormatsUsingGetVideoInfo failed: ${e}`);
+      throw new Error(`getPlayerResponseFromApi failed: ${e}`);
     }
   }
   throw new Error();
