@@ -1,14 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "dist/",
+    "outDir": "dist",
     "strict": true,
+    "target": "es5",
     "module": "ESNext",
-    "lib": [
-      "ES6",
-      "DOM"
-    ],
-    "target": "ES6",
-    "allowJs": true
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
   },
   "exclude": [
     "node_modules",
