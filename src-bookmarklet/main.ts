@@ -5,7 +5,7 @@ function loadFullScript() {
   const docScripts = document.getElementsByTagName('script');
   const mainScriptSrc = docScripts[docScripts.length - 1].src;
   // Create the url of the "main-full" alternative we are going to load
-  const fullMainSrc = mainScriptSrc.replace('main.js', 'main-full.js');
+  const fullMainSrc = mainScriptSrc.replace('main.js', 'main-bundle.js');
   // Create script tag and load the "main-full" bookmarklet
   const script = document.body.appendChild(document.createElement('script'));
   script.type = 'module';
