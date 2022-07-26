@@ -11,6 +11,7 @@ import mixer from './mixer/mixer';
     case 'www.youtube.com':
       youtube();
       break;
+    case 'www.twitch.tv':
     case 'twitch.tv':
       twitch();
       break;
