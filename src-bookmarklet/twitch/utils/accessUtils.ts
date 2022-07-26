@@ -2,11 +2,11 @@ interface ApiResponse {
   data: ApiResponseData
 }
 
-interface ApiResponseData{
+interface ApiResponseData {
   streamPlaybackAccessToken: ApiAccessToken,
   videoPlaybackAccessToken: ApiAccessToken
 }
-interface ApiAccessToken{
+interface ApiAccessToken {
   readonly signature: string;
   readonly value: string;
 }
