@@ -19,6 +19,7 @@ function loadFullScript() {
     case 'www.youtube.com':
       s = import('./youtube/youtube');
       break;
+    case 'www.twitch.tv':
     case 'twitch.tv':
       s = import('./twitch/twitch');
       break;
