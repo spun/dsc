@@ -19,7 +19,8 @@ const twitchTests = (name: string, url: string, expectedFileName: string) => {
     beforeAll(async () => {
       // @ts-ignore Set download destination
       // eslint-disable-next-line no-underscore-dangle
-      await page._client.send('Page.setDownloadBehavior', {
+      const client = await page.target().createCDPSession();
+      await client.send('Page.setDownloadBehavior', {
         behavior: 'allow',
         downloadPath: downloadsPath,
       });
