@@ -40,12 +40,13 @@ const youtubeStandardTests = (name: string, url: string) => {
         if (isCookieConsentDialogShown) {
           // Click accept
           await page.click('ytd-consent-bump-v2-lightbox#lightbox #content ytd-button-renderer:nth-child(2) #button');
+          await page.waitForNavigation({ waitUntil: 'networkidle0' });
         }
       }
 
       // Inject bookmarklet
       await page.addScriptTag({ url: 'http://localhost:8080/dist/main.js' });
-    }, 10000);
+    }, 20000);
 
     it('should show the popup window"', async () => {
       const popupElement = await page.waitForXPath('//*[@id="dsc_popup"]', { visible: true, timeout: 5000 });
@@ -112,6 +113,7 @@ const youtubeSPATests = (name: string, searchUrl: string) => {
         if (isCookieConsentDialogShown) {
           // Click accept
           await page.click('ytd-consent-bump-v2-lightbox#lightbox #content ytd-button-renderer:nth-child(2) #button');
+          await page.waitForNavigation({ waitUntil: 'networkidle0' });
         }
       }
 
@@ -123,7 +125,7 @@ const youtubeSPATests = (name: string, searchUrl: string) => {
       ]);
       // Inject bookmarklet
       await page.addScriptTag({ url: 'http://localhost:8080/dist/main.js' });
-    }, 10000);
+    }, 20000);
 
     it('should show the popup window"', async () => {
       const popupElement = await page.waitForXPath('//*[@id="dsc_popup"]', { visible: true, timeout: 5000 });
