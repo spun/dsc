@@ -39,7 +39,7 @@ const youtubeStandardTests = (name: string, url: string) => {
         });
         if (isCookieConsentDialogShown) {
           // Click accept
-          await page.click('ytd-consent-bump-v2-lightbox#lightbox #content ytd-button-renderer:nth-child(2) #button');
+          await page.click('ytd-consent-bump-v2-lightbox#lightbox #content ytd-button-renderer:nth-child(2) button');
           await page.waitForNavigation({ waitUntil: 'networkidle0' });
         }
       }
@@ -112,7 +112,7 @@ const youtubeSPATests = (name: string, searchUrl: string) => {
         });
         if (isCookieConsentDialogShown) {
           // Click accept
-          await page.click('ytd-consent-bump-v2-lightbox#lightbox #content ytd-button-renderer:nth-child(2) #button');
+          await page.click('ytd-consent-bump-v2-lightbox#lightbox #content ytd-button-renderer:nth-child(2) button');
           await page.waitForNavigation({ waitUntil: 'networkidle0' });
         }
       }
