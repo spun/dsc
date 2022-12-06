@@ -15,7 +15,7 @@
   "license": "ISC",
   "devDependencies": {
     "@rollup/plugin-eslint": "^9.0.1",
-    "@rollup/plugin-terser": "^0.2.0",
+    "@rollup/plugin-terser": "^0.1.0",
     "@types/expect-puppeteer": "^5.0.2",
     "@types/jest": "^29.2.4",
     "@types/jest-environment-puppeteer": "^5.0.3",
