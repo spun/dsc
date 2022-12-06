@@ -38,17 +38,37 @@ async function getManifestLiveUrl(channelName: string, clientId: string) {
 }
 
 /**
- * Check it the current url is from a vod page and extracts the video id
+ * Check it the url is from a vod page with the type 1 format and extract the video id
+ * Format: twitch.tv/videos/<videoId>
  */
-function isVideoUrl() {
-  const locationUrl = window.location.href;
-
+function getVodIdType1(url: string) {
   const regExp = /^.*twitch\.tv\/videos\/([0-9]+)*/;
-  const match = locationUrl.match(regExp);
+  const match = url.match(regExp);
   if (match) {
     return match[1];
   }
-  return false;
+  return undefined;
+}
+
+/**
+ * Check it the url is from a vod page with the type 2 format and extract the video id
+ * Format: twitch.tv/<channelName>/video/<videoId>
+ */
+function getVodIdType2(url: string) {
+  const regExp = /^.*twitch\.tv\/.*\/video\/([0-9]+)*/;
+  const match = url.match(regExp);
+  if (match) {
+    return match[1];
+  }
+  return undefined;
+}
+
+/**
+ * Check it the current url is from a vod page and extracts the video id
+ */
+function getVodId() {
+  const locationUrl = window.location.href;
+  return getVodIdType1(locationUrl) || getVodIdType2(locationUrl);
 }
 
 /**
@@ -71,10 +91,10 @@ async function main(): Promise<void> {
     window.location.href = liveManifestUrl;
   } else {
     // Check if the request was for a vod
-    const videoId = isVideoUrl();
-    if (videoId) {
+    const vodId = getVodId();
+    if (vodId) {
       const clientId = getClientId();
-      const videoManifestUrl = await getManigestVideoUrl(videoId, clientId);
+      const videoManifestUrl = await getManigestVideoUrl(vodId, clientId);
       window.location.href = videoManifestUrl;
     }
   }
