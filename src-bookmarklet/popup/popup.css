@@ -6,7 +6,7 @@
   width: 360px;
   right: 16px;
   bottom: 16px;
-  z-index: 1000;
+  z-index: 2202;
   border-radius: 2px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   animation: animateElement linear 0.3s;
