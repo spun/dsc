@@ -42,7 +42,7 @@ const twitchTests = (name: string, url: string, expectedFileName: string) => {
     afterAll(() => {
       // Delete downloads directory recursively
       if (fs.existsSync(downloadsPath)) {
-        fs.rmSync(downloadsPath, { recursive: true });
+        fs.rmSync(downloadsPath, { recursive: true, force: true });
       }
     });
 
