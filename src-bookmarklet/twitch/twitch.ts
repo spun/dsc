@@ -18,7 +18,7 @@ function getClientId() {
 function isLiveChannelUrl() {
   // A live channel only has the name of the channel in its pathname
   const { pathname } = window.location;
-  const regExp = /^\/(\w+)\/$/;
+  const regExp = /^\/(\w+)\/?$/;
   const match = pathname.match(regExp);
   if (match) {
     return match[1];
