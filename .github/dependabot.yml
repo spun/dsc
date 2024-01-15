@@ -6,6 +6,9 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      updates:
+        patterns: ["*"]
 
   # Check for updates to GitHub Actions every week
   - package-ecosystem: "github-actions"
