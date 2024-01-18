@@ -1,2 +1,0 @@
-- Try "@rollup/plugin-typescript" instead of "rollup-plugin-typescript2" when "typescript" version is >=4.2.0
-(https://github.com/rollup/plugins/issues/287)
