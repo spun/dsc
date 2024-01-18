@@ -1,6 +1,6 @@
 // rollup.config.dev.js
 import eslint from '@rollup/plugin-eslint';
-import typescript from 'rollup-plugin-typescript2';
+import typescript from '@rollup/plugin-typescript';
 import postcss from 'rollup-plugin-postcss';
 import del from 'rollup-plugin-delete';
 import serve from 'rollup-plugin-serve';
