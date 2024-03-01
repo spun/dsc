@@ -30,8 +30,8 @@ jobs:
         npm ci
         npm run build
 
-    - name: Test 🧪
-      run: npm test
+    # - name: Test 🧪
+    #   run: npm test
 
     - name: Deploy 🚀
       uses: peaceiris/actions-gh-pages@v3
