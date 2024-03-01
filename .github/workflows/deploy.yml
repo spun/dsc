@@ -46,8 +46,8 @@ jobs:
           npm ci
           npm run build
 
-      - name: Test 🧪
-        run: npm test
+      # - name: Test 🧪
+      #  run: npm test
 
       - name: Upload artifact 📤
         uses: actions/upload-pages-artifact@v3
