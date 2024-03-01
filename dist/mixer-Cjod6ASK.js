@@ -1,2 +1,2 @@
 function e(e){const t=e.split("manifest.m3u8")[0];fetch(e).then((e=>e.text())).then((e=>{!function(e,t){const n=new Blob([t],{type:"text/plain"}),o=window.document.createElement("a");o.href=window.URL.createObjectURL(n),o.download=e,document.body.appendChild(o),o.click(),document.body.removeChild(o)}("result.m3u8",e.replace(/^.*\d+\.ts$/gm,(e=>t+e)))})).catch((e=>{console.error(e)}))}var t=()=>{e(function(){const e=window.performance.getEntriesByType("resource").filter((e=>e.name.includes("manifest.m3u8")));return e[e.length-1].name}())};export{t as default};
-//# sourceMappingURL=mixer-8d097pBl.js.map
+//# sourceMappingURL=mixer-Cjod6ASK.js.map
