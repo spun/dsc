@@ -49,17 +49,17 @@ const youtubeStandardTests = (name: string, url: string) => {
     }, 20000);
 
     it('should show the popup window"', async () => {
-      const popupElement = await page.waitForXPath('//*[@id="dsc_popup"]', { visible: true, timeout: 5000 });
+      const popupElement = await page.waitForSelector('xpath/.//*[@id="dsc_popup"]', { visible: true, timeout: 5000 });
       expect(popupElement).not.toBeNull();
     });
 
     it('should contain at least one download element', async () => {
-      const listItems = await page.$x('//*[@id="dsc_popup"]/ul/li/a/p[2]');
+      const listItems = await page.$$('xpath/.//*[@id="dsc_popup"]/ul/li/a/p[2]');
       expect(listItems.length).toBeGreaterThan(0);
     });
 
     it('should have an english subtitle', async () => {
-      const listItems = await page.$x('//*[@id="dsc_popup"]/ul/li/a/p[2]');
+      const listItems = await page.$$('xpath/.//*[@id="dsc_popup"]/ul/li/a/p[2]');
       const titleItems = await Promise.all(listItems.map(async (item) => {
         const title = await page.evaluate((it) => it.textContent, item);
         return title;
@@ -128,12 +128,12 @@ const youtubeSPATests = (name: string, searchUrl: string) => {
     }, 20000);
 
     it('should show the popup window"', async () => {
-      const popupElement = await page.waitForXPath('//*[@id="dsc_popup"]', { visible: true, timeout: 5000 });
+      const popupElement = await page.waitForSelector('xpath/.//*[@id="dsc_popup"]', { visible: true, timeout: 5000 });
       expect(popupElement).not.toBeNull();
     });
 
     it('should contain at least one download element', async () => {
-      const listElements = await page.$x('//*[@id="dsc_popup"]/ul/li');
+      const listElements = await page.$$('xpath/.//*[@id="dsc_popup"]/ul/li');
       expect(listElements.length).toBeGreaterThan(0);
     });
 
