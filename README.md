@@ -1,6 +1,6 @@
 # download-script-collection
 
-[![build](https://github.com/spun/dsc/workflows/build/badge.svg)](https://github.com/spun/dsc/actions?query=workflow%3Abuild)
+[![Deploy to GitHub Pages](https://github.com/spun/dsc/actions/workflows/deploy.yml/badge.svg?branch=master)](https://github.com/spun/dsc/actions/workflows/deploy.yml)
 
 [https://spun.github.io/dsc/](https://spun.github.io/dsc/)
 
