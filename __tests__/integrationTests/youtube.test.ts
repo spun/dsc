@@ -13,6 +13,7 @@ const youtubeStandardTestInput = [{
 const youtubeStandardTests = (name: string, url: string) => {
   describe(name, () => {
     beforeAll(async () => {
+      await page.setBypassCSP(true);
       await page.goto(url, { waitUntil: 'networkidle0' });
 
       // Cookie consent
@@ -86,6 +87,7 @@ const youtubeSPATestInput = [{
 const youtubeSPATests = (name: string, searchUrl: string) => {
   describe(name, () => {
     beforeAll(async () => {
+      await page.setBypassCSP(true);
       await page.goto(searchUrl, { waitUntil: 'networkidle0' });
 
       // Cookie consent
