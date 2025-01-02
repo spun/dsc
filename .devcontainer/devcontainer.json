@@ -1,0 +1,21 @@
+// For format details, see https://aka.ms/devcontainer.json.
+{
+	"name": "Node.js & TypeScript",
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+
+	// List of ports inside the container available locally.
+	"forwardPorts": [9000],
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"pflannery.vscode-versionlens"
+			]
+		}
+	},
+
+	"containerEnv": {
+		"HOME": "/home/node"
+	} 
+}
