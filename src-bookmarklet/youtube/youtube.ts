@@ -63,7 +63,6 @@ async function getPlayerResponseFromApi(videoId: string) {
     INNERTUBE_CONTEXT_CLIENT_VERSION,
     INNERTUBE_CONTEXT_HL,
     INNERTUBE_CONTEXT_CLIENT_NAME,
-  // eslint-disable-next-line no-underscore-dangle
   } = ytcfg.data_;
 
   // Create body for the api request
