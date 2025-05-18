@@ -1,4 +1,6 @@
 import { getLiveAccessToken, getBaseDvrUrl } from './utils/accessUtils';
+// UI popup
+import { Popup } from '../popup/popup';
 
 interface CommonOptions {
   headers: Record<string, string>;
@@ -72,35 +74,45 @@ function getVodId() {
 }
 
 /**
- * Check URL against known formats and select the one with the best quality
+ * Check URL against known formats return the available ones
  * @param baseUrl 
- * @returns A Promise with the best m3u8 url or undefined if we where unable to find one.
+ * @returns A Promise with the list of available formats.
  */
-async function getBestM3u8FromSupportedFormats(baseUrl: string): Promise<string | undefined> {
+async function getAllM3u8FromSupportedFormats(baseUrl: string): Promise<{ format: string, url: string }[]> {
 
   // NOTE: For "Source" quality it will normally use "chunked" instead of a format string. 
   //  Since we are not checking against "chunked", we will probably always get the second-best quality.
   // TODO: We could display a quality selector
   const formats = [
+    "chunked",  // Source?
     "1080p60",  // HighHighFPS
     "1080p30",  // High
     "720p60",   // MediumHighFPS
     "720p30",   // Medium
+    "480p30",
     "360p30",   // Low
     "160p30"    // VeryLow
   ]
 
-  // Check all known formats and stop when we find one that exists.
-  for (const format of formats) {
+  // Create Promises to check all known formats
+  const promises = formats.map(async format => {
     const formatUrl = `${baseUrl}/${format}/index-dvr.m3u8`
-    // We use a full fetch instead of just HEAD because it creates CORS issues.
+    // NOTE: We use a full fetch instead of just HEAD to avoid CORS issues.
     const response = await fetch(formatUrl);
-    if (response.ok) {
-      return formatUrl
+    return {
+      format: format,
+      url: formatUrl,
+      isAvailable: response.ok
     }
-  }
+  })
 
-  return undefined
+  // Check all URLs in parallel
+  const availabilityResults = await Promise.all(promises)
+
+  // Filter non-available, remove isAvailable property and return
+  return availabilityResults
+    .filter(result => result.isAvailable)
+    .map(result => ({ format: result.format, url: result.url }));
 }
 
 /**
@@ -180,15 +192,35 @@ async function main(): Promise<void> {
     // Check if the request was for a vod
     const vodId = getVodId();
     if (vodId) {
+
+      // Popup
+      const popup = new Popup(async (receivedData) => {
+        // Start download when an item from the popup is clicked
+        const m3u8Content = await transformRelativeM3u8ToFullPath(receivedData.url)
+        downloadM3u8File(`${vodId}.m3u8`, m3u8Content)
+      });
+
+      // Display our empty popup instead of waiting for the results
+      popup.show();
+
       const clientId = getClientId();
       const baseDvrUrl = await getBaseDvrUrl(clientId, vodId)
-      const bestAvailableM3u8 = await getBestM3u8FromSupportedFormats(baseDvrUrl)
-      if (bestAvailableM3u8) {
-        const m3u8Content = await transformRelativeM3u8ToFullPath(bestAvailableM3u8)
-        downloadM3u8File(`${vodId}.m3u8`, m3u8Content)
+      const availableM3u8 = await getAllM3u8FromSupportedFormats(baseDvrUrl)
+      if (availableM3u8.length > 0) {
+        // Add each available m3u8 to the popup
+        availableM3u8.forEach((item) => {
+          popup.addItemToList({
+            title: item.format,
+            subtitle: item.format,
+            url: item.url
+          });
+        })
       } else {
+        // TODO: Display error inside popup
         console.warn("Unable to find a valid format")
       }
+    } else {
+      // TODO: Display error inside popup
     }
   }
 }
