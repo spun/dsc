@@ -12,16 +12,32 @@ interface SupportedFormat {
   urlSegment: string;
 }
 
-const supportedFormats: SupportedFormat[] = [
-  { name: "Source", urlSegment: "chunked", },
-  { name: "1080p60", urlSegment: "1080p60", },
-  { name: "1080p30", urlSegment: "1080p30", },
-  { name: "720p60", urlSegment: "720p60", },
-  { name: "720p30", urlSegment: "720p30", },
-  { name: "480p30", urlSegment: "480p30", },
-  { name: "360p30", urlSegment: "360p30", },
-  { name: "160p30", urlSegment: "160p30", },
-]
+const supportedFormats: {
+  modern: SupportedFormat[];
+  legacy: SupportedFormat[];
+} = {
+  modern: [
+    { name: "Source", urlSegment: "chunked", },
+    { name: "1080p60", urlSegment: "1080p60", },
+    { name: "1080p30", urlSegment: "1080p30", },
+    { name: "720p60", urlSegment: "720p60", },
+    { name: "720p30", urlSegment: "720p30", },
+    { name: "480p30", urlSegment: "480p30", },
+    { name: "360p30", urlSegment: "360p30", },
+    { name: "160p30", urlSegment: "160p30", },
+  ],
+  // Old VODs use different urlSegments
+  legacy: [
+    { name: "1080p30", urlSegment: "1080p", },
+    { name: "720p30", urlSegment: "720p", },
+    { name: "480p30", urlSegment: "480p", },
+    { name: "360p30", urlSegment: "360p", },
+    { name: "240p30", urlSegment: "240p", },
+    // Is 160p a valid legacy url segement?
+    { name: "160p30", urlSegment: "160p", },
+    { name: "144p30", urlSegment: "144p", },
+  ]
+}
 
 /**
  * Get assigned client id
@@ -96,25 +112,32 @@ function getVodId() {
  */
 async function getAllM3u8FromSupportedFormats(baseUrl: string): Promise<{ format: SupportedFormat, url: string }[]> {
 
-  // Create Promises to check all known formats
-  const promises = supportedFormats.map(async format => {
-    const formatUrl = `${baseUrl}/${format.urlSegment}/index-dvr.m3u8`
-    // NOTE: We use a full fetch instead of just HEAD to avoid CORS issues.
-    const response = await fetch(formatUrl);
-    return {
-      format: format,
-      url: formatUrl,
-      isAvailable: response.ok
-    }
-  })
+  const checkFormats = async (formats: SupportedFormat[]) => {
+    // Create Promises to check against received formats
+    const promises = formats.map(async format => {
+      const formatUrl = `${baseUrl}/${format.urlSegment}/index-dvr.m3u8`
+      // NOTE: We use a full fetch instead of just HEAD to avoid CORS issues.
+      const response = await fetch(formatUrl);
+      return {
+        format: format,
+        url: formatUrl,
+        isAvailable: response.ok
+      }
+    })
 
-  // Check all URLs in parallel
-  const availabilityResults = await Promise.all(promises)
+    // Check all URLs in parallel
+    return await Promise.all(promises)
+  }
 
-  // Filter non-available, remove isAvailable property and return
-  return availabilityResults
-    .filter(result => result.isAvailable)
-    .map(result => ({ format: result.format, url: result.url }));
+  // Only check legacy format urls if we were not able to find a valid result from the modern format set
+  let availableResults = (await checkFormats(supportedFormats.modern)).filter(result => result.isAvailable)
+  if (availableResults.length == 0) {
+    console.log("Checking legacy formats.")
+    availableResults = (await checkFormats(supportedFormats.legacy)).filter(result => result.isAvailable)
+  }
+
+  // Remove isAvailable property and return
+  return availableResults.map(result => ({ format: result.format, url: result.url }));
 }
 
 /**
