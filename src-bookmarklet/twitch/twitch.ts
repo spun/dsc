@@ -199,7 +199,7 @@ async function main(): Promise<void> {
       const popup = new Popup(async (receivedData) => {
         // Start download when an item from the popup is clicked
         const m3u8Content = await transformRelativeM3u8ToFullPath(receivedData.url)
-        downloadM3u8File(`${vodId}.m3u8`, m3u8Content)
+        downloadM3u8File(`${vodId}_${receivedData.subtitle}.m3u8`, m3u8Content)
       });
 
       // Display our empty popup instead of waiting for the results
