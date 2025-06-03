@@ -1,9 +1,43 @@
-import { getLiveAccessToken, getVideoAccessToken } from './utils/accessUtils';
+import { getLiveAccessToken, getBaseDvrUrl } from './utils/accessUtils';
+// UI popup
+import { Popup } from '../popup/popup';
 
 interface CommonOptions {
   headers: Record<string, string>;
 }
 declare const commonOptions: CommonOptions;
+
+interface SupportedFormat {
+  name: string;
+  urlSegment: string;
+}
+
+const supportedFormats: {
+  modern: SupportedFormat[];
+  legacy: SupportedFormat[];
+} = {
+  modern: [
+    { name: "Source", urlSegment: "chunked", },
+    { name: "1080p60", urlSegment: "1080p60", },
+    { name: "1080p30", urlSegment: "1080p30", },
+    { name: "720p60", urlSegment: "720p60", },
+    { name: "720p30", urlSegment: "720p30", },
+    { name: "480p30", urlSegment: "480p30", },
+    { name: "360p30", urlSegment: "360p30", },
+    { name: "160p30", urlSegment: "160p30", },
+  ],
+  // Old VODs use different urlSegments
+  legacy: [
+    { name: "1080p30", urlSegment: "1080p", },
+    { name: "720p30", urlSegment: "720p", },
+    { name: "480p30", urlSegment: "480p", },
+    { name: "360p30", urlSegment: "360p", },
+    { name: "240p30", urlSegment: "240p", },
+    // Is 160p a valid legacy url segement?
+    { name: "160p30", urlSegment: "160p", },
+    { name: "144p30", urlSegment: "144p", },
+  ]
+}
 
 /**
  * Get assigned client id
@@ -72,14 +106,104 @@ function getVodId() {
 }
 
 /**
- * Get the manifest (m3u8 file) of a live channel
+ * Check URL against known formats return the available ones
+ * @param baseUrl 
+ * @returns A Promise with the list of available formats.
  */
-async function getManigestVideoUrl(videoId: string, clientId: string) {
-  const accessToken = await getVideoAccessToken(clientId, videoId);
-  // Form url
-  const { signature } = accessToken;
-  const encodedToken = encodeURIComponent(accessToken.token);
-  return `https://usher.ttvnw.net/vod/${videoId}.m3u8?sig=${signature}&token=${encodedToken}`;
+async function getAllM3u8FromSupportedFormats(baseUrl: string): Promise<{ format: SupportedFormat, url: string }[]> {
+
+  const checkFormats = async (formats: SupportedFormat[]) => {
+    // Create Promises to check against received formats
+    const promises = formats.map(async format => {
+      const formatUrl = `${baseUrl}/${format.urlSegment}/index-dvr.m3u8`
+      // NOTE: We use a full fetch instead of just HEAD to avoid CORS issues.
+      const response = await fetch(formatUrl);
+      return {
+        format: format,
+        url: formatUrl,
+        isAvailable: response.ok
+      }
+    })
+
+    // Check all URLs in parallel
+    return await Promise.all(promises)
+  }
+
+  // Only check legacy format urls if we were not able to find a valid result from the modern format set
+  let availableResults = (await checkFormats(supportedFormats.modern)).filter(result => result.isAvailable)
+  if (availableResults.length == 0) {
+    console.log("Checking legacy formats.")
+    availableResults = (await checkFormats(supportedFormats.legacy)).filter(result => result.isAvailable)
+  }
+
+  // Remove isAvailable property and return
+  return availableResults.map(result => ({ format: result.format, url: result.url }));
+}
+
+/**
+ * Default dvr m3u8 files use relative paths for its .ts files. We need to transform it
+ * to use full paths before it can be downloaded.
+ * @param url The m3u8 file url.
+ * @returns A Promise with the tranformend m3u8 content as a string.
+ */
+async function transformRelativeM3u8ToFullPath(url: string): Promise<string> {
+
+  // Remove last piece from the url to get the base url that will be added to the .ts entries
+  const baseUrl = url.replace(/\/[^/]*$/, '/');
+
+  // Fetch the m3u8 content
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error("Unable to fetch manifest")
+  }
+  const m3u8Content = await response.text()
+
+  // For each line, replace relative .ts entries with full path URLs
+  const m3u8Pieces = m3u8Content
+    .split('\n')
+    .map(line => {
+      // Match lines that look like a segment file, e.g., "23.ts"
+      if (/^\d+\.ts$/.test(line.trim())) {
+        return baseUrl.replace(/\/$/, '') + '/' + line.trim();
+      }
+      return line;
+    })
+
+  // Make sure our m3u8 file ends with #EXT-X-ENDLIST
+  // If we are working with a VOD from an ongoing livestream, this line won't exist.
+  // To ensure the generated m3u8 plays/downloads from the beginning, check if 
+  // the line exists and add it if it doesn't.
+  let lastNonEmptyIndex: number | undefined = undefined;
+  for (let i = m3u8Pieces.length - 1; i >= 0; i--) {
+    if (m3u8Pieces[i] !== "") {
+      lastNonEmptyIndex = i;
+      break;
+    }
+  }
+
+  if (lastNonEmptyIndex && m3u8Pieces[lastNonEmptyIndex] !== "#EXT-X-ENDLIST") {
+    m3u8Pieces.splice(lastNonEmptyIndex + 1, 0, "#EXT-X-ENDLIST")
+  }
+
+  return m3u8Pieces.join('\n')
+
+}
+
+/**
+ * Download some string content as a m3u8 file
+ * @param filename The name of the new file.
+ * @param content The content of the new file.
+ */
+function downloadM3u8File(filename: string, content: string) {
+  const blob = new Blob([content], { type: "application/vnd.apple.mpegurl" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 async function main(): Promise<void> {
@@ -93,9 +217,35 @@ async function main(): Promise<void> {
     // Check if the request was for a vod
     const vodId = getVodId();
     if (vodId) {
+
+      // Popup
+      const popup = new Popup(async (receivedData) => {
+        // Start download when an item from the popup is clicked
+        const m3u8Content = await transformRelativeM3u8ToFullPath(receivedData.url)
+        downloadM3u8File(`${vodId}_${receivedData.subtitle}.m3u8`, m3u8Content)
+      });
+
+      // Display our empty popup instead of waiting for the results
+      popup.show();
+
       const clientId = getClientId();
-      const videoManifestUrl = await getManigestVideoUrl(vodId, clientId);
-      window.location.href = videoManifestUrl;
+      const baseDvrUrl = await getBaseDvrUrl(clientId, vodId)
+      const availableM3u8 = await getAllM3u8FromSupportedFormats(baseDvrUrl)
+      if (availableM3u8.length > 0) {
+        // Add each available m3u8 to the popup
+        availableM3u8.forEach((item) => {
+          popup.addItemToList({
+            title: item.format.name,
+            subtitle: item.format.urlSegment,
+            url: item.url
+          });
+        })
+      } else {
+        // TODO: Display error inside popup
+        console.warn("Unable to find a valid format")
+      }
+    } else {
+      // TODO: Display error inside popup
     }
   }
 }
