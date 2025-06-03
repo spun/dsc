@@ -7,6 +7,22 @@ interface CommonOptions {
 }
 declare const commonOptions: CommonOptions;
 
+interface SupportedFormat {
+  name: string;
+  urlSegment: string;
+}
+
+const supportedFormats: SupportedFormat[] = [
+  { name: "Source", urlSegment: "chunked", },
+  { name: "1080p60", urlSegment: "1080p60", },
+  { name: "1080p30", urlSegment: "1080p30", },
+  { name: "720p60", urlSegment: "720p60", },
+  { name: "720p30", urlSegment: "720p30", },
+  { name: "480p30", urlSegment: "480p30", },
+  { name: "360p30", urlSegment: "360p30", },
+  { name: "160p30", urlSegment: "160p30", },
+]
+
 /**
  * Get assigned client id
  */
@@ -78,25 +94,11 @@ function getVodId() {
  * @param baseUrl 
  * @returns A Promise with the list of available formats.
  */
-async function getAllM3u8FromSupportedFormats(baseUrl: string): Promise<{ format: string, url: string }[]> {
-
-  // NOTE: For "Source" quality it will normally use "chunked" instead of a format string. 
-  //  Since we are not checking against "chunked", we will probably always get the second-best quality.
-  // TODO: We could display a quality selector
-  const formats = [
-    "chunked",  // Source?
-    "1080p60",  // HighHighFPS
-    "1080p30",  // High
-    "720p60",   // MediumHighFPS
-    "720p30",   // Medium
-    "480p30",
-    "360p30",   // Low
-    "160p30"    // VeryLow
-  ]
+async function getAllM3u8FromSupportedFormats(baseUrl: string): Promise<{ format: SupportedFormat, url: string }[]> {
 
   // Create Promises to check all known formats
-  const promises = formats.map(async format => {
-    const formatUrl = `${baseUrl}/${format}/index-dvr.m3u8`
+  const promises = supportedFormats.map(async format => {
+    const formatUrl = `${baseUrl}/${format.urlSegment}/index-dvr.m3u8`
     // NOTE: We use a full fetch instead of just HEAD to avoid CORS issues.
     const response = await fetch(formatUrl);
     return {
@@ -210,8 +212,8 @@ async function main(): Promise<void> {
         // Add each available m3u8 to the popup
         availableM3u8.forEach((item) => {
           popup.addItemToList({
-            title: item.format,
-            subtitle: item.format,
+            title: item.format.name,
+            subtitle: item.format.urlSegment,
             url: item.url
           });
         })
