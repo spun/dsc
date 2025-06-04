@@ -60,6 +60,26 @@ describe('Popup', () => {
         // Check that no other elements are in the list
         const listItems = document.querySelectorAll('.list-item');
         expect(listItems.length).toBe(0);
+        // Check that error from Error state is not displayed
+        const error = document.querySelector('.error-message');
+        expect(error).toBeNull();
+    });
+
+    test('should only display error message on error state', () => {
+        popup.show();
+        const errorMessage = 'Something went wrong';
+        popup.setState({ type: 'Error', message: errorMessage });
+        // Check that the error element exists
+        const errorElement = document.querySelector('.error-message') as HTMLParagraphElement;
+        expect(errorElement).not.toBeNull();
+        // Check the full text content
+        expect(errorElement.textContent).toBe(`Error: ${errorMessage}`);
+        // Check that no other elements are in the list
+        const listItems = document.querySelectorAll('.list-item');
+        expect(listItems.length).toBe(0);
+        // Check that spinner from Loading state is not displayed
+        const spinner = document.querySelector('.spinner');
+        expect(spinner).toBeNull();
     });
 
     test('should only display a list of items on success state', () => {
@@ -82,6 +102,9 @@ describe('Popup', () => {
         // Check that spinner from Loading state is not displayed
         const spinner = document.querySelector('.spinner');
         expect(spinner).toBeNull();
+        // Check that error from Error state is not displayed
+        const error = document.querySelector('.error-message');
+        expect(error).toBeNull();
     });
 
     test('should call onClick when list item is clicked', () => {
@@ -103,11 +126,5 @@ describe('Popup', () => {
         expect(item).not.toBeNull();
         item.click();
         expect(handleClick).toHaveBeenCalled();
-    });
-
-    test.skip('should not throw on Error state', () => {
-        expect(() => {
-            popup.setState({ type: 'Error', message: 'Something went wrong' });
-        }).not.toThrow('Not implemented');
     });
 });

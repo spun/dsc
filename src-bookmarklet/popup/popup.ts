@@ -74,7 +74,7 @@ class Popup {
         break;
       case 'Error':
         // Show error
-        throw Error('Not implemented')
+        this.showError(state.message)
         break;
     }
   }
@@ -104,6 +104,23 @@ class Popup {
     const loader = document.createElement('div');
     loader.className = 'spinner';
     this.listElement.appendChild(loader);
+  }
+
+  private showError(message: string): void {
+    // Remove all items from list first
+    this.clearList();
+    // Create error element
+    const error = document.createElement('p');
+    error.className = 'error-message';
+    // Create prefix
+    const errorPrefix = document.createElement('strong');
+    errorPrefix.textContent = 'Error: ';
+    // Add error message
+    const messageNode = document.createTextNode(message);
+    // Append everything 
+    error.appendChild(errorPrefix);
+    error.appendChild(messageNode);
+    this.listElement.appendChild(error);
   }
 
   // Add box to DOM
