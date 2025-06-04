@@ -15,12 +15,12 @@ type PopupState =
 class Popup {
 
   rootId: string = 'dsc_popup';
-  root: HTMLDivElement;
-  listElement: HTMLUListElement;
+  private root: HTMLDivElement;
+  private listElement: HTMLUListElement;
 
   constructor(
-    primaryColor = "#FF00FF",
-    onPrimaryColor = "#FF00FF"
+    primaryColor = '#FF00FF',
+    onPrimaryColor = '#FF00FF'
   ) {
     // Main box
     this.root = document.createElement('div');
@@ -74,7 +74,7 @@ class Popup {
         break;
       case 'Error':
         // Show error
-        throw Error("Not implemented")
+        throw Error('Not implemented')
         break;
     }
   }
