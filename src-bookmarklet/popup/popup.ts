@@ -1,150 +1,162 @@
 import './popup.css';
 
-interface PopupElementData {
-  title: string;
-  subtitle: string;
-  url: string;
+interface PopupItem {
+  headlineText: string;
+  supportingText: string;
+  onClick: () => void;
 }
 
-// Main box
-function createPopupBox() {
-  // UI box
-  const popup = document.createElement('div');
-  popup.classList.add('card');
-  return popup;
-}
-
-// Box header
-function createPopupHeader(popup: Popup) {
-  // Header
-  const header = document.createElement('p');
-  header.classList.add('header');
-  // Header title
-  const headerTitle = document.createElement('span');
-  headerTitle.textContent = 'Available formats';
-  headerTitle.classList.add('title');
-  headerTitle.onclick = () => popup.restore();
-  header.appendChild(headerTitle);
-  // Minimize button
-  const headerMinimize = document.createElement('span');
-  headerMinimize.classList.add('minimize-popup-button');
-  headerMinimize.textContent = '_';
-  headerMinimize.onclick = () => popup.toggle();
-  header.appendChild(headerMinimize);
-  // Close button
-  const headerClose = document.createElement('span');
-  headerClose.classList.add('close-popup-button');
-  headerClose.textContent = 'X';
-  headerClose.onclick = () => popup.hide();
-  header.appendChild(headerClose);
-
-  return header;
-}
-
-// Box list
-function createPopupList() {
-  // Box list
-  const list = document.createElement('ul');
-  list.classList.add('list');
-  return list;
-}
-
-// Box list item
-function createPopupListItem(titleText: string, subtitleText: string, url: string) {
-  // Item
-  const listItem = document.createElement('li');
-  listItem.classList.add('list-item');
-  // Link wrapper
-  const link = document.createElement('a');
-  link.href = url;
-  listItem.appendChild(link);
-  // Item title
-  const title = document.createElement('p');
-  title.classList.add('title');
-  title.textContent = titleText;
-  link.appendChild(title);
-  // Item subtitle
-  const subTitle = document.createElement('p');
-  subTitle.classList.add('subtitle');
-  subTitle.textContent = subtitleText;
-  link.appendChild(subTitle);
-
-  return listItem;
-}
+type PopupState =
+  | { type: 'Loading' }
+  | { type: 'Success'; list: PopupItem[] }
+  | { type: 'Error'; message: string };
 
 // Popup class
 class Popup {
-  boxId: string;
 
-  boxElement: HTMLDivElement;
-
-  headerElement: HTMLParagraphElement;
-
+  rootId: string = 'dsc_popup';
+  root: HTMLDivElement;
   listElement: HTMLUListElement;
 
-  clickListener: (data: PopupElementData) => void;
+  constructor(
+    primaryColor = "#FF00FF",
+    onPrimaryColor = "#FF00FF"
+  ) {
+    // Main box
+    this.root = document.createElement('div');
+    this.root.id = this.rootId;
+    this.root.setAttribute('role', 'dialog');
 
-  constructor(clickListener: (data: PopupElementData) => void) {
-    this.boxId = 'dsc_popup';
-    // Create main box and attach to body
-    this.boxElement = createPopupBox();
-    this.boxElement.id = this.boxId;
-    // Create header and attach to box
-    this.headerElement = createPopupHeader(this);
-    this.boxElement.appendChild(this.headerElement);
+    // Header
+    const header = document.createElement('p');
+    header.classList.add('header');
+    header.style.setProperty('--color-primary', primaryColor);
+    header.style.setProperty('--color-on-primary', onPrimaryColor);
+    // Header title
+    const headerTitle = document.createElement('button');
+    headerTitle.textContent = 'Available formats';
+    headerTitle.classList.add('title');
+    headerTitle.addEventListener('click', () => this.restore());
+    headerTitle.setAttribute('aria-label', 'Restore popup');
+    header.appendChild(headerTitle);
+    // Minimize button
+    const headerMinimize = document.createElement('button');
+    headerMinimize.classList.add('minimize-popup-button');
+    headerMinimize.textContent = '▬';
+    headerMinimize.addEventListener('click', () => this.toggle());
+    headerMinimize.setAttribute('aria-label', 'Minimize popup');
+    header.appendChild(headerMinimize);
+    // Close button
+    const headerClose = document.createElement('button');
+    headerClose.classList.add('close-popup-button');
+    headerClose.textContent = '✖';
+    headerClose.addEventListener('click', () => this.remove());
+    headerClose.setAttribute('aria-label', 'Close popup');
+    header.appendChild(headerClose);
+
+    this.root.appendChild(header)
+
     // Create items list and attach to box
-    this.listElement = createPopupList();
-    this.boxElement.appendChild(this.listElement);
-    // Notify click events
-    this.clickListener = clickListener;
+    this.listElement = document.createElement('ul');
+    this.listElement.classList.add('list');
+    this.root.appendChild(this.listElement);
   }
 
-  // Create and add a new list item to the box list
-  addItemToList(data: PopupElementData): void {
-    const li = createPopupListItem(data.title, data.subtitle, data.url);
-    li.onclick = () => {
-      this.clickListener(data);
-      // Prevent navigation. We do this instead of removing the link element
-      // in case the user wants to open the element url in a new tab.
-      return false;
-    };
-    this.listElement.appendChild(li);
+  setState(state: PopupState) {
+    switch (state.type) {
+      case 'Loading':
+        // Show loading
+        this.showLoader()
+        break;
+      case 'Success':
+        // Show list
+        this.setItems(state.list)
+        break;
+      case 'Error':
+        // Show error
+        throw Error("Not implemented")
+        break;
+    }
+  }
+
+  private clearList() {
+    while (this.listElement.firstChild) {
+      this.listElement.removeChild(this.listElement.firstChild);
+    }
+  }
+
+  private setItems(items: PopupItem[]): void {
+    // Remove all items from list first
+    this.clearList()
+
+    // Add new items
+    const fragment = document.createDocumentFragment();
+    items.forEach((item) => {
+      const listItem = Popup.createListItem(item)
+      fragment.appendChild(listItem);
+    })
+    this.listElement.appendChild(fragment);
+  }
+
+  private showLoader(): void {
+    // Remove all items from list first
+    this.clearList()
+    const loader = document.createElement('div');
+    loader.className = 'spinner';
+    this.listElement.appendChild(loader);
   }
 
   // Add box to DOM
   show(): void {
-    this.hide();
-    document.body.appendChild(this.boxElement);
+    this.remove();
+    document.body.appendChild(this.root);
   }
 
   // Remove box from DOM
-  hide(): void {
-    const popupElement = document.getElementById(this.boxId);
-    if (popupElement != null) {
-      const parent = popupElement.parentElement;
-      if (parent) {
-        parent.removeChild(popupElement);
-      }
-    }
+  remove(): void {
+    const popupElement = document.getElementById(this.rootId);
+    if (!popupElement || !popupElement.parentElement) return;
+    popupElement.parentElement.removeChild(popupElement);
   }
 
   // Add "minimize" class to show only the box header
   minimize(): void {
-    this.boxElement.classList.add('minimize');
+    this.root.classList.add('minimized');
   }
 
   // Remove "minimize" class to show all the content of the box
   restore(): void {
-    this.boxElement.classList.remove('minimize');
+    this.root.classList.remove('minimized');
   }
 
   toggle(): void {
-    if (this.boxElement.classList.contains('minimize')) {
+    if (this.root.classList.contains('minimized')) {
       this.restore();
     } else {
       this.minimize();
     }
   }
+
+  private static createListItem(item: PopupItem): HTMLLIElement {
+    // Item
+    const listItem = document.createElement('li');
+    listItem.classList.add('list-item');
+    // Link wrapper
+    const link = document.createElement('a');
+    link.onclick = item.onClick
+    listItem.appendChild(link);
+    // Item title
+    const title = document.createElement('p');
+    title.classList.add('title');
+    title.textContent = item.headlineText;
+    link.appendChild(title);
+    // Item subtitle
+    const subTitle = document.createElement('p');
+    subTitle.classList.add('subtitle');
+    subTitle.textContent = item.supportingText;
+    link.appendChild(subTitle);
+    return listItem
+  }
 }
 
-export { Popup, PopupElementData };
+export { Popup, PopupItem };
