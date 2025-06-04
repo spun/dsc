@@ -1,4 +1,4 @@
-import { Popup, PopupItem } from '../../src-bookmarklet/popup/popup';
+import { Popup } from '../../src-bookmarklet/popup/popup';
 
 describe('Popup', () => {
     let popup: Popup;
@@ -51,21 +51,54 @@ describe('Popup', () => {
         expect(element!.classList.contains('minimized')).toBe(false);
     });
 
-    test('should only display loading spinner on loading state', () => {
+    test('should display loading spinner on loading state', () => {
         popup.show();
         popup.setState({ type: 'Loading' });
         // Check if spinner is being displayed
         const spinner = document.querySelector('.spinner');
         expect(spinner).not.toBeNull();
-        // Check that no other elements are in the list
-        const listItems = document.querySelectorAll('.list-item');
-        expect(listItems.length).toBe(0);
-        // Check that error from Error state is not displayed
-        const error = document.querySelector('.error-message');
-        expect(error).toBeNull();
     });
 
-    test('should only display error message on error state', () => {
+    test('should clear error state before displaying the loading spinner', () => {
+        popup.show();
+        // Start with an error state
+        popup.setState({ type: 'Error', message: "An error message" });
+        const errorBefore = document.querySelector('.error-message');
+        expect(errorBefore).not.toBeNull();
+        // Switch to a loading state
+        popup.setState({ type: 'Loading' });
+        const spinner = document.querySelector('.spinner');
+        expect(spinner).not.toBeNull();
+        // Check that error from Error state is not displayed
+        const errorAfter = document.querySelector('.error-message');
+        expect(errorAfter).toBeNull();
+    });
+
+    test('should clear results before displaying the loading spinner', () => {
+        popup.show();
+        // Start with a successful state
+        popup.setState({
+            type: 'Success',
+            list: [
+                {
+                    headlineText: 'Item 1',
+                    supportingText: 'Details about item 1',
+                    onClick: jest.fn(),
+                },
+            ],
+        });
+        const listItemsBefore = document.querySelectorAll('.list-item');
+        expect(listItemsBefore.length).toBe(1);
+        // Switch to a loading state
+        popup.setState({ type: 'Loading' });
+        const spinner = document.querySelector('.spinner');
+        expect(spinner).not.toBeNull();
+        // Check that no other elements are in the list
+        const listItemsAfter = document.querySelectorAll('.list-item');
+        expect(listItemsAfter.length).toBe(0);
+    });
+
+    test('should display error message on error state', () => {
         popup.show();
         const errorMessage = 'Something went wrong';
         popup.setState({ type: 'Error', message: errorMessage });
@@ -74,15 +107,48 @@ describe('Popup', () => {
         expect(errorElement).not.toBeNull();
         // Check the full text content
         expect(errorElement.textContent).toBe(`Error: ${errorMessage}`);
-        // Check that no other elements are in the list
-        const listItems = document.querySelectorAll('.list-item');
-        expect(listItems.length).toBe(0);
-        // Check that spinner from Loading state is not displayed
-        const spinner = document.querySelector('.spinner');
-        expect(spinner).toBeNull();
     });
 
-    test('should only display a list of items on success state', () => {
+    test('should clear loading state before displaying the error message', () => {
+        popup.show();
+        // Start with a loading state
+        popup.setState({ type: 'Loading' });
+        const spinnerBefore = document.querySelector('.spinner');
+        expect(spinnerBefore).not.toBeNull();
+        // Switch to an error state
+        popup.setState({ type: 'Error', message: "An error message" });
+        const errorElement = document.querySelector('.error-message') as HTMLParagraphElement;
+        expect(errorElement).not.toBeNull();
+        // Check that the loading spinner is not displayed
+        const spinnerAfter = document.querySelector('.spinner');
+        expect(spinnerAfter).toBeNull();
+    });
+
+    test('should clear results before displaying the error message', () => {
+        popup.show();
+        // Start with a successful state
+        popup.setState({
+            type: 'Success',
+            list: [
+                {
+                    headlineText: 'Item 1',
+                    supportingText: 'Details about item 1',
+                    onClick: jest.fn(),
+                },
+            ],
+        });
+        const listItemsBefore = document.querySelectorAll('.list-item');
+        expect(listItemsBefore.length).toBe(1);
+        // Switch to an error state
+        popup.setState({ type: 'Error', message: "An error message" });
+        const errorElement = document.querySelector('.error-message') as HTMLParagraphElement;
+        expect(errorElement).not.toBeNull();
+        // Check that no other elements are in the list
+        const listItemsAfter = document.querySelectorAll('.list-item');
+        expect(listItemsAfter.length).toBe(0);
+    });
+
+    test('should display a list of items on success state', () => {
         popup.show();
         // Populate popup
         popup.setState({
@@ -99,12 +165,54 @@ describe('Popup', () => {
         const listItems = document.querySelectorAll('.list-item');
         expect(listItems.length).toBe(1);
         expect(listItems[0].textContent).toContain('Item 1');
-        // Check that spinner from Loading state is not displayed
-        const spinner = document.querySelector('.spinner');
-        expect(spinner).toBeNull();
+    });
+
+    test('should clear loading state before displaying the results list', () => {
+        popup.show();
+        // Start with a loading state
+        popup.setState({ type: 'Loading' });
+        const spinnerBefore = document.querySelector('.spinner');
+        expect(spinnerBefore).not.toBeNull();
+        // Switch to a successful state
+        popup.setState({
+            type: 'Success',
+            list: [
+                {
+                    headlineText: 'Item 1',
+                    supportingText: 'Details about item 1',
+                    onClick: jest.fn(),
+                },
+            ],
+        });
+        const listItems = document.querySelectorAll('.list-item');
+        expect(listItems.length).toBe(1);
+        // Check that the loading spinner is not displayed
+        const spinnerAfter = document.querySelector('.spinner');
+        expect(spinnerAfter).toBeNull();
+    });
+
+    test('should clear error state before displaying the results list', () => {
+        popup.show();
+        // Start with an error state
+        popup.setState({ type: 'Error', message: "An error message" });
+        const errorBefore = document.querySelector('.error-message');
+        expect(errorBefore).not.toBeNull();
+        // Switch to a successful state
+        popup.setState({
+            type: 'Success',
+            list: [
+                {
+                    headlineText: 'Item 1',
+                    supportingText: 'Details about item 1',
+                    onClick: jest.fn(),
+                },
+            ],
+        });
+        const listItems = document.querySelectorAll('.list-item');
+        expect(listItems.length).toBe(1);
         // Check that error from Error state is not displayed
-        const error = document.querySelector('.error-message');
-        expect(error).toBeNull();
+        const errorAfter = document.querySelector('.error-message');
+        expect(errorAfter).toBeNull();
     });
 
     test('should call onClick when list item is clicked', () => {
