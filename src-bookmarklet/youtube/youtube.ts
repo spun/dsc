@@ -244,12 +244,18 @@ async function main(): Promise<void> {
       supportingText: item.supportingText,
       onClick: async () => { downloadSubtitle(item) }
     }))
-    
+
     // Show popup
     popup.setState({ type: 'Success', list: [...videoItems, ...subtitleItems] })
     popup.show();
-  } catch (e) {
-    console.error('An error occurred', e);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.warn('An error occurred', error);
+      popup.setState({ type: 'Error', message: error.message })
+    } else {
+      console.warn('Unknown error:', error);
+      popup.setState({ type: 'Error', message: 'Something went wrong' })
+    }
   }
 }
 

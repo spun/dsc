@@ -214,15 +214,14 @@ async function main(): Promise<void> {
     const liveManifestUrl = await getManifestLiveUrl(channelName, clientId);
     window.location.href = liveManifestUrl;
   } else {
+    // Display our loading Popup instead of waiting for the results
+    const popup = new Popup("#9147ff", "#ffffff")
+    popup.setState({ type: 'Loading' })
+    popup.show();
+
     // Check if the request was for a vod
     const vodId = getVodId();
     if (vodId) {
-
-      // Display our loading Popup instead of waiting for the results
-      const popup = new Popup("#9147ff", "#ffffff")
-      popup.setState({ type: 'Loading' })
-      popup.show();
-
       const clientId = getClientId();
       const baseDvrUrl = await getBaseDvrUrl(clientId, vodId)
       const availableM3u8 = await getAllM3u8FromSupportedFormats(baseDvrUrl)
@@ -241,11 +240,12 @@ async function main(): Promise<void> {
         }))
         popup.setState({ type: 'Success', list: items })
       } else {
-        // TODO: Display error inside popup
         console.warn("Unable to find a valid format")
+        popup.setState({ type: 'Error', message: 'Unable to find a valid format to display' })
       }
     } else {
-      // TODO: Display error inside popup
+      console.warn("Unable to find a valid format")
+      popup.setState({ type: 'Error', message: 'Unable to fetch vod id' })
     }
   }
 }
