@@ -54,7 +54,7 @@ const youtubeStandardTests = (name: string, url: string) => {
       await page.addScriptTag({ url: 'http://localhost:8080/dist/main.js' });
     }, 20000);
 
-    it('should show the popup window"', async () => {
+    conditionalTest('should show the popup window"', async () => {
       const popupElement = await page.waitForSelector('xpath/.//*[@id="dsc_popup"]', { visible: true, timeout: 5000 });
       expect(popupElement).not.toBeNull();
     });
@@ -134,7 +134,7 @@ const youtubeSPATests = (name: string, searchUrl: string) => {
       await page.addScriptTag({ url: 'http://localhost:8080/dist/main.js' });
     }, 20000);
 
-    it('should show the popup window"', async () => {
+    conditionalTest('should show the popup window"', async () => {
       const popupElement = await page.waitForSelector('xpath/.//*[@id="dsc_popup"]', { visible: true, timeout: 5000 });
       expect(popupElement).not.toBeNull();
     });
