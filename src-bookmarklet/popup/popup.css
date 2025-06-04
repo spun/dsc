@@ -3,34 +3,35 @@ NOTE: Don't use relative sizes like rem. We cannot control/override
       the font-size of the page where the popup is being displayed. 
 */
 :root {
-  --header-heigh: 48px;
-  --color-surface: rgb(237 237 244);
-  --color-surface-high: rgb(231 232 238);
-  --color-on-surface: rgb(25 28 32);
-  --color-primary: rgb(214 210 210);
-  --color-on-primary: rgb(31 31 31);
+  --dsc-header-heigh: 48px;
+  --dsc-color-surface: rgb(237 237 244);
+  --dsc-color-surface-high: rgb(231 232 238);
+  --dsc-color-on-surface: rgb(25 28 32);
+  --dsc-color-primary: rgb(214 210 210);
+  --dsc-color-on-primary: rgb(31 31 31);
 
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-surface: rgb(29 32 36);
-    --color-surface-high: rgb(40 42 47);
-    --color-on-surface: rgb(226 226 233);
-    --color-primary: rgb(47 47 47);
-    --color-on-primary: rgb(255 255 255);
+    --dsc-color-surface: rgb(29 32 36);
+    --dsc-color-surface-high: rgb(40 42 47);
+    --dsc-color-on-surface: rgb(226 226 233);
+    --dsc-color-primary: rgb(47 47 47);
+    --dsc-color-on-primary: rgb(255 255 255);
   }
 }
 
 #dsc_popup {
   font-family: sans-serif;
+  font-size: 12px;
   position: fixed;
   width: 360px;
   right: 16px;
   bottom: 16px;
   z-index: 3000;
-  background: var(--color-surface);
-  color: var(--color-on-surface);
+  background: var(--dsc-color-surface);
+  color: var(--dsc-color-on-surface);
   border-radius: 4px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
   animation: animateElement linear 0.3s;
@@ -49,6 +50,10 @@ NOTE: Don't use relative sizes like rem. We cannot control/override
   }
 }
 
+#dsc_popup button {
+  all: unset;
+}
+
 #dsc_popup.minimized {
   opacity: 0.5;
   transition: opacity 0.3s ease-out;
@@ -59,12 +64,12 @@ NOTE: Don't use relative sizes like rem. We cannot control/override
 }
 
 #dsc_popup .header {
-  background-color: var(--color-primary);
-  color: var(--color-on-primary);
+  background-color: var(--dsc-color-primary);
+  color: var(--dsc-color-on-primary);
   display: flex;
   font-weight: bold;
   border-radius: 4px 4px 0px 0px;
-  height: var(--header-heigh);
+  height: var(--dsc-header-heigh);
 }
 
 #dsc_popup .header .title {
@@ -79,8 +84,8 @@ NOTE: Don't use relative sizes like rem. We cannot control/override
 
 #dsc_popup .header .close-popup-button,
 #dsc_popup .header .minimize-popup-button {
-  height: var(--header-heigh);
-  width: var(--header-heigh);
+  height: var(--dsc-header-heigh);
+  width: var(--dsc-header-heigh);
   text-align: center;
   border-radius: 4px;
 }
@@ -94,6 +99,7 @@ NOTE: Don't use relative sizes like rem. We cannot control/override
 }
 
 #dsc_popup .list {
+  list-style-type: none;
   max-height: 240px;
   overflow-y: scroll;
   transition: max-height 0.2s ease-out;
@@ -110,12 +116,12 @@ NOTE: Don't use relative sizes like rem. We cannot control/override
 }
 
 #dsc_popup .list .list-item:hover {
-  background: var(--color-surface-high);
+  background: var(--dsc-color-surface-high);
 }
 
 #dsc_popup .list .list-item a {
   text-decoration: none;
-  color: var(--color-on-surface);
+  color: var(--dsc-color-on-surface);
 }
 
 #dsc_popup .list .list-item a .subtitle {
@@ -126,7 +132,7 @@ NOTE: Don't use relative sizes like rem. We cannot control/override
   width: 24px;
   height: 24px;
   border: 3px solid #808080;
-  border-top: 3px solid var(--color-on-surface);
+  border-top: 3px solid var(--dsc-color-on-surface);
   border-radius: 50%;
   animation: spinner-rotate 1s cubic-bezier(0.6, 0.3, 0.3, 0.6) infinite;
   margin: 12px auto;

@@ -30,8 +30,8 @@ class Popup {
     // Header
     const header = document.createElement('p');
     header.classList.add('header');
-    header.style.setProperty('--color-primary', primaryColor);
-    header.style.setProperty('--color-on-primary', onPrimaryColor);
+    header.style.setProperty('--dsc-color-primary', primaryColor);
+    header.style.setProperty('--dsc-color-on-primary', onPrimaryColor);
     // Header title
     const headerTitle = document.createElement('button');
     headerTitle.textContent = 'Available formats';
