@@ -5,4 +5,8 @@
 // on performance.
 module.exports = {
   preset: 'ts-jest',
+  testEnvironment: 'jsdom',
+  moduleNameMapper: {
+    '\\.(css)$': '<rootDir>/__tests__/__mocks__/styleMock.js',
+  },
 };

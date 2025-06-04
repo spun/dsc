@@ -1,6 +1,6 @@
 import { getLiveAccessToken, getBaseDvrUrl } from './utils/accessUtils';
 // UI popup
-import { Popup } from '../popup/popup';
+import { Popup, PopupItem } from '../popup/popup';
 
 interface CommonOptions {
   headers: Record<string, string>;
@@ -214,38 +214,38 @@ async function main(): Promise<void> {
     const liveManifestUrl = await getManifestLiveUrl(channelName, clientId);
     window.location.href = liveManifestUrl;
   } else {
+    // Display our loading Popup instead of waiting for the results
+    const popup = new Popup("#9147ff", "#ffffff")
+    popup.setState({ type: 'Loading' })
+    popup.show();
+
     // Check if the request was for a vod
     const vodId = getVodId();
     if (vodId) {
-
-      // Popup
-      const popup = new Popup(async (receivedData) => {
-        // Start download when an item from the popup is clicked
-        const m3u8Content = await transformRelativeM3u8ToFullPath(receivedData.url)
-        downloadM3u8File(`${vodId}_${receivedData.subtitle}.m3u8`, m3u8Content)
-      });
-
-      // Display our empty popup instead of waiting for the results
-      popup.show();
-
       const clientId = getClientId();
       const baseDvrUrl = await getBaseDvrUrl(clientId, vodId)
       const availableM3u8 = await getAllM3u8FromSupportedFormats(baseDvrUrl)
       if (availableM3u8.length > 0) {
-        // Add each available m3u8 to the popup
-        availableM3u8.forEach((item) => {
-          popup.addItemToList({
-            title: item.format.name,
-            subtitle: item.format.urlSegment,
-            url: item.url
-          });
-        })
+
+        const downloadM3u8 = async (item: { format: SupportedFormat, url: string }) => {
+          const m3u8Content = await transformRelativeM3u8ToFullPath(item.url)
+          downloadM3u8File(`${vodId}_${item.format.urlSegment}.m3u8`, m3u8Content)
+        }
+
+        // Add all available m3u8 to the popup
+        const items: PopupItem[] = availableM3u8.map(item => ({
+          headlineText: item.format.name,
+          supportingText: item.format.urlSegment,
+          onClick: async () => { downloadM3u8(item) }
+        }))
+        popup.setState({ type: 'Success', list: items })
       } else {
-        // TODO: Display error inside popup
         console.warn("Unable to find a valid format")
+        popup.setState({ type: 'Error', message: 'Unable to find a valid format to display' })
       }
     } else {
-      // TODO: Display error inside popup
+      console.warn("Unable to find a valid format")
+      popup.setState({ type: 'Error', message: 'Unable to fetch vod id' })
     }
   }
 }

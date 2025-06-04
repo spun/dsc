@@ -3,7 +3,7 @@ import { getYtItagInfo } from './formats';
 // Subtitle time formats util
 import { millisecondsToSrtTime } from './utils/subtitleTimeUtils';
 // UI popup
-import { Popup, PopupElementData } from '../popup/popup';
+import { Popup, PopupItem } from '../popup/popup';
 import { YtPlayer, RawPlayerResponse } from './model/YtPlayer';
 import { YtCfg } from './model/YtCfg';
 import TimedText from './model/TimedText';
@@ -16,7 +16,8 @@ enum ElementType {
   SUBTITLE = 'element_type_subtitle',
 }
 
-interface YtPopupElementData extends PopupElementData {
+interface YtPopupElementData extends PopupItem {
+  url: string;
   type?: ElementType;
   extras?: Record<string, unknown>;
 }
@@ -47,8 +48,9 @@ function getFormatsUsingYtPlayerPlayerResponse(playerResponseJSON: RawPlayerResp
     const itagInfo = getYtItagInfo(item.itag);
     // Add to results
     result.push({
-      title: itagInfo.text,
-      subtitle: itagInfo.subtext || item.size || item.quality || '',
+      headlineText: itagInfo.text,
+      supportingText: itagInfo.subtext || item.size || item.quality || '',
+      onClick: () => { },
       url: `${item.url}&title=${videoTitle}`,
     });
   });
@@ -131,7 +133,7 @@ async function getFormats() {
     // This will get us the same information.
     console.info('Using method 2, "getPlayerResponseFromApi"');
     try {
-      const playerResponse : RawPlayerResponse = await getPlayerResponseFromApi(urlVideoId);
+      const playerResponse: RawPlayerResponse = await getPlayerResponseFromApi(urlVideoId);
       return getFormatsUsingYtPlayerPlayerResponse(playerResponse);
     } catch (e) {
       throw new Error(`getPlayerResponseFromApi failed: ${e}`);
@@ -168,9 +170,10 @@ function getAvailableSubtitles(): YtPopupElementData[] {
     // the transformation and download triggered when the user selects a subtitle.
     const captionsConfig = ytplayer.config.args.raw_player_response.captions;
     const tracks = captionsConfig.playerCaptionsTracklistRenderer.captionTracks;
-    const result = tracks.map((track) => ({
-      title: track.name.simpleText,
-      subtitle: `Subtitle ${track.languageCode}`,
+    const result: YtPopupElementData[] = tracks.map((track) => ({
+      headlineText: track.name.simpleText,
+      supportingText: `Subtitle ${track.languageCode}`,
+      onClick: () => { },
       url: '',
       extras: {
         baseUrl: track.baseUrl,
@@ -221,45 +224,39 @@ async function downloadSubtitle(subtitleData: YtPopupElementData) {
 
 async function main(): Promise<void> {
   // Popup
-  const popup = new Popup(async (receivedData) => {
-    const data = receivedData as YtPopupElementData;
-    // Check what type of available downloads was selected
-    switch (data.type) {
-      case ElementType.VIDEO:
-        // Navigate to download url
-        window.location.href = data.url;
-        break;
-      case ElementType.SUBTITLE:
-        // Create subtitle file and trigger download
-        await downloadSubtitle(data);
-        break;
-      default:
-      // default code block
-    }
-  });
+  const popup = new Popup("#f03", "#fff");
 
-  // VIDEO FORMATS
   try {
+    // VIDEO FORMATS
     const formatResults = await getFormats();
-    formatResults.forEach((videoData) => {
-      const item: YtPopupElementData = { ...videoData, type: ElementType.VIDEO };
-      popup.addItemToList(item);
-    });
+    console.log("formatResults", formatResults)
+    const videoItems: PopupItem[] = formatResults.map(item => ({
+      headlineText: item.headlineText,
+      supportingText: item.supportingText,
+      onClick: async () => { window.location.href = item.url; }
+    }))
+
+    // SUBTITLES
+    const availableSubtitles = getAvailableSubtitles();
+    // Add all available subtitle to the list
+    const subtitleItems: PopupItem[] = availableSubtitles.map(item => ({
+      headlineText: item.headlineText,
+      supportingText: item.supportingText,
+      onClick: async () => { downloadSubtitle(item) }
+    }))
+
+    // Show popup
+    popup.setState({ type: 'Success', list: [...videoItems, ...subtitleItems] })
     popup.show();
-  } catch (e) {
-    console.error('An error occurred', e);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.warn('An error occurred', error);
+      popup.setState({ type: 'Error', message: error.message })
+    } else {
+      console.warn('Unknown error:', error);
+      popup.setState({ type: 'Error', message: 'Something went wrong' })
+    }
   }
-
-  // SUBTITLES
-  const availableSubtitles = getAvailableSubtitles();
-  // Add all available subtitle to the list
-  availableSubtitles.forEach((subtitleData) => {
-    const item: YtPopupElementData = { ...subtitleData, type: ElementType.SUBTITLE };
-    popup.addItemToList(item);
-  });
-
-  // Show popup
-  popup.show();
 }
 
 export default main;
