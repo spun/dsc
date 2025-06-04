@@ -128,7 +128,7 @@ const youtubeSPATests = (name: string, searchUrl: string) => {
       await Promise.all([
         page.waitForNavigation(),
         // Click on first result
-        page.click('#video-title'),
+        page.click('a#video-title'),
       ]);
       // Inject bookmarklet
       await page.addScriptTag({ url: 'http://localhost:8080/dist/main.js' });
