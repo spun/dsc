@@ -25,13 +25,13 @@ class Popup {
     // Main box
     this.root = document.createElement('div');
     this.root.id = this.rootId;
+    this.root.style.setProperty('--dsc-color-primary', primaryColor);
+    this.root.style.setProperty('--dsc-color-on-primary', onPrimaryColor);
     this.root.setAttribute('role', 'dialog');
 
     // Header
     const header = document.createElement('p');
     header.classList.add('header');
-    header.style.setProperty('--dsc-color-primary', primaryColor);
-    header.style.setProperty('--dsc-color-on-primary', onPrimaryColor);
     // Header title
     const headerTitle = document.createElement('button');
     headerTitle.textContent = 'Available formats';
