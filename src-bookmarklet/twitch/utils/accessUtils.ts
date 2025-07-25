@@ -137,7 +137,7 @@ export async function getBaseDvrUrl(clientId: string, videoId: string) {
 
   // Check if the current url has the expected format (ends with /storyboards/<videoId>-info.json)
   const expectedFile = `${videoId}-info.json`;
-  if (pathnamePieces.at(-1) !== expectedFile || pathnamePieces.at(-2) !== "storyboards") {
+  if (pathnamePieces[pathnamePieces.length - 1] !== expectedFile || pathnamePieces[pathnamePieces.length - 2] !== "storyboards") {
     throw new Error(`Storyboards URL does not have the expected format: ${fullStoryboardsUrl}`);
   }
 
