@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "rollup --config rollup.config.dev.mjs --watch",
     "build": "rollup --config rollup.config.prod.mjs",
-    "test": "npm run test:unit && npm run test:integration",
+    "test": "npm run test:unit",
     "test:ci": "CI=true npm run test:unit && CI=true npm run test:integration",
     "test:unit": "jest __tests__/unitTests -c jest-unit.config.js --verbose",
     "test:integration": "server-test _runHttp-server http://localhost:8080 _runJestIntegration",
