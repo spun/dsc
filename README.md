@@ -39,6 +39,9 @@ Generate and serve the bookmarklet code.
 ### Test
 
 Run all available tests.
+
+**NOTE**: Integration tests are disabled and won't run with `npm test` anymore. Puppeteer keeps breaking in different ways almost every time we update it. Maybe a bookmarklet isn't a great fit for Puppeteer testing.
+
 > npm test
 
 Tests are divided into two folders.
