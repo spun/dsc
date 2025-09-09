@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node ⚙️
         uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: '22'
 
       - name: Setup Pages 📄
         uses: actions/configure-pages@v5
