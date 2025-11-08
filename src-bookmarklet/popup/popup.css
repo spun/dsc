@@ -88,6 +88,7 @@ NOTE: Don't use relative sizes like rem. We cannot control/override
   width: var(--dsc-header-heigh);
   text-align: center;
   border-radius: 4px;
+  cursor: pointer;
 }
 
 #dsc_popup .header .close-popup-button:hover {
