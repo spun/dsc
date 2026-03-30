@@ -17,7 +17,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@rollup/plugin-eslint": "^9.2.0",
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/expect-puppeteer": "^5.0.6",
     "@types/jest": "^30.0.0",
