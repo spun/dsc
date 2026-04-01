@@ -4,6 +4,14 @@
     "target": "es6",
     "module": "ESNext",
     "forceConsistentCasingInFileNames": true,
+    "lib": [
+      "dom",
+      "es2017.string", // padStart
+      "es2022.error" // Error with cause
+    ],
+    "types": [
+      "jest"
+    ]
   },
   "exclude": [
     "node_modules",
