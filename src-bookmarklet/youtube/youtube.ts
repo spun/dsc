@@ -136,7 +136,7 @@ async function getFormats() {
       const playerResponse: RawPlayerResponse = await getPlayerResponseFromApi(urlVideoId);
       return getFormatsUsingYtPlayerPlayerResponse(playerResponse);
     } catch (e) {
-      throw new Error(`getPlayerResponseFromApi failed: ${e}`);
+      throw new Error(`getPlayerResponseFromApi failed: ${e}`, { cause: e });
     }
   }
   throw new Error();
