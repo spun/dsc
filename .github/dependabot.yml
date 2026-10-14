@@ -7,6 +7,11 @@ updates:
     schedule:
       interval: "monthly"
     groups:
+      # Group typescript until ts-jest adds support for v7
+      typescript:
+        patterns:
+          - "ts-jest"
+          - "typescript"    
       updates:
         patterns: ["*"]
 
